@@ -1,10 +1,28 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import NewTransferForm from "./NewTransferForm";
 import OutgoingTransfersTable from "./OutgoingTransfersTable";
 import IncomingTransfersTable from "./IncomingTransfersTable";
 import NotificationsPanel from "./NotificationsPanel";
 import SettingsPanel from "./SettingsPanel";
+import axiosInstance from "@/app/api/axios";
+import { Transaction } from "@/app/api/transactions";
+
+interface Branch {
+  id: number;
+  name: string;
+  governorate: string;
+}
+
+interface TransferData {
+  sender: any;
+  receiver: any;
+  amount: number;
+  benefitAmount?: number;
+  currency: string;
+  branch: string;
+  message?: string;
+}
 
 const tabs = [
   { label: "تحويل جديد", key: "new" },
@@ -16,6 +34,74 @@ const tabs = [
 
 export default function EmployeeDashboard() {
   const [activeTab, setActiveTab] = useState("new");
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [currentBranch, setCurrentBranch] = useState<Branch | null>(null);
+  const [outgoingTransfers, setOutgoingTransfers] = useState<Transaction[]>([]);
+  const [incomingTransfers, setIncomingTransfers] = useState<Transaction[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch branches
+  useEffect(() => {
+    const fetchBranches = async () => {
+      try {
+        const response = await axiosInstance.get('/api/branches');
+        setBranches(response.data);
+        if (response.data.length > 0) {
+          setCurrentBranch(response.data[0]);
+        }
+      } catch (error) {
+        console.error('Error fetching branches:', error);
+      }
+    };
+    fetchBranches();
+  }, []);
+
+  // Handle transfer submission
+  const handleTransferSubmit = async (transferData: TransferData) => {
+    try {
+      setLoading(true);
+      await axiosInstance.post('/api/transfers', transferData);
+      // Refresh transfers after successful submission
+      fetchTransfers();
+    } catch (error) {
+      console.error('Error submitting transfer:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch transfers
+  const fetchTransfers = async () => {
+    try {
+      setLoading(true);
+      const [outgoingResponse, incomingResponse] = await Promise.all([
+        axiosInstance.get('/api/transfers/outgoing'),
+        axiosInstance.get('/api/transfers/incoming')
+      ]);
+      setOutgoingTransfers(outgoingResponse.data.transfers);
+      setIncomingTransfers(incomingResponse.data.transfers);
+      setTotalPages(outgoingResponse.data.totalPages);
+    } catch (error) {
+      console.error('Error fetching transfers:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle status change
+  const handleStatusChange = async (id: string, status: string) => {
+    try {
+      setLoading(true);
+      await axiosInstance.patch(`/api/transfers/${id}`, { status });
+      fetchTransfers();
+    } catch (error) {
+      console.error('Error updating transfer status:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-primary-50 p-6">
@@ -40,13 +126,31 @@ export default function EmployeeDashboard() {
         {/* محتوى التبويب */}
         <div className="bg-white rounded-b-xl shadow p-8 min-h-[300px]">
           {activeTab === "new" && (
-            <NewTransferForm />
+            <NewTransferForm 
+              onSubmit={handleTransferSubmit}
+              branches={branches}
+              currentBranch={currentBranch}
+            />
           )}
           {activeTab === "outgoing" && (
-            <OutgoingTransfersTable transfers={[]} />
+            <OutgoingTransfersTable 
+              transfers={outgoingTransfers}
+              onStatusChange={handleStatusChange}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              loading={loading}
+            />
           )}
           {activeTab === "incoming" && (
-            <IncomingTransfersTable transfers={[]} />
+            <IncomingTransfersTable 
+              transfers={incomingTransfers}
+              onStatusChange={handleStatusChange}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              loading={loading}
+            />
           )}
           {activeTab === "notifications" && (
             <NotificationsPanel />
