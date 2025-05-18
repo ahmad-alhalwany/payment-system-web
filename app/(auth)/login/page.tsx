@@ -11,6 +11,11 @@ import { useAuth } from '@/app/hooks/useAuth'
 const loginSchema = z.object({
   username: z.string().min(1, 'اسم المستخدم مطلوب'),
   password: z.string().min(1, 'كلمة المرور مطلوبة'),
+});
+
+const initializationSchema = z.object({
+  username: z.string().min(1, 'اسم المستخدم مطلوب'),
+  password: z.string().min(1, 'كلمة المرور مطلوبة'),
   confirmPassword: z.string().min(1, 'تأكيد كلمة المرور مطلوب'),
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'كلمتا المرور غير متطابقتين',
@@ -18,6 +23,7 @@ const loginSchema = z.object({
 });
 
 type LoginFormData = z.infer<typeof loginSchema>
+type InitializationFormData = z.infer<typeof initializationSchema>
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -33,11 +39,19 @@ export default function LoginPage() {
   const { login, checkInitialization, initializeSystem } = useAuth()
 
   const {
-    register,
-    handleSubmit,
-    formState: { errors },
+    register: registerLogin,
+    handleSubmit: handleSubmitLogin,
+    formState: { errors: loginErrors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
+  })
+
+  const {
+    register: registerInit,
+    handleSubmit: handleSubmitInit,
+    formState: { errors: initErrors },
+  } = useForm<InitializationFormData>({
+    resolver: zodResolver(initializationSchema),
   })
 
   // Check if system is initialized
@@ -99,7 +113,7 @@ export default function LoginPage() {
   }
 
   // Handle system initialization
-  const handleInitializeSystem = async (data: LoginFormData) => {
+  const handleInitializeSystem = async (data: InitializationFormData) => {
     try {
       setIsLoading(true)
       setStatus('جاري تهيئة النظام...')
@@ -130,12 +144,12 @@ export default function LoginPage() {
             <h2 className="text-3xl font-extrabold text-primary-900 dark:text-primary-200 mb-2">تهيئة النظام</h2>
             <p className="text-gray-600 dark:text-gray-300 mb-4">قم بإنشاء حساب المدير الرئيسي للنظام</p>
           </div>
-          <form className="space-y-6" onSubmit={handleSubmit(handleInitializeSystem)}>
+          <form className="space-y-6" onSubmit={handleSubmitInit(handleInitializeSystem)}>
             <div className="space-y-4">
-              <input {...register('username')} type="text" required className="w-full px-4 py-3 rounded-xl border border-primary-200 dark:border-primary-700 bg-white dark:bg-gray-800 text-primary-900 dark:text-primary-100 focus:outline-none focus:ring-2 focus:ring-primary-300" placeholder="اسم المستخدم" />
-              {errors.username && (<p className="text-sm text-red-600">{errors.username.message}</p>)}
+              <input {...registerInit('username')} type="text" required className="w-full px-4 py-3 rounded-xl border border-primary-200 dark:border-primary-700 bg-white dark:bg-gray-800 text-primary-900 dark:text-primary-100 focus:outline-none focus:ring-2 focus:ring-primary-300" placeholder="اسم المستخدم" />
+              {initErrors.username && (<p className="text-sm text-red-600">{initErrors.username.message}</p>)}
               <div className="relative">
-                <input {...register('password')} type={showPassword ? 'text' : 'password'} required className="w-full px-4 py-3 rounded-xl border border-primary-200 dark:border-primary-700 bg-white dark:bg-gray-800 text-primary-900 dark:text-primary-100 focus:outline-none focus:ring-2 focus:ring-primary-300 pr-12" placeholder="كلمة المرور" />
+                <input {...registerInit('password')} type={showPassword ? 'text' : 'password'} required className="w-full px-4 py-3 rounded-xl border border-primary-200 dark:border-primary-700 bg-white dark:bg-gray-800 text-primary-900 dark:text-primary-100 focus:outline-none focus:ring-2 focus:ring-primary-300 pr-12" placeholder="كلمة المرور" />
                 <button type="button" tabIndex={-1} onClick={() => setShowPassword((v) => !v)} className="absolute left-3 top-1/2 -translate-y-1/2 text-primary-400 hover:text-primary-600 dark:text-primary-300 dark:hover:text-primary-100 focus:outline-none">
                   {showPassword ? (
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -148,9 +162,9 @@ export default function LoginPage() {
                   )}
                 </button>
               </div>
-              {errors.password && (<p className="text-sm text-red-600">{errors.password.message}</p>)}
+              {initErrors.password && (<p className="text-sm text-red-600">{initErrors.password.message}</p>)}
               <div className="relative">
-                <input {...register('confirmPassword')} type={showConfirmPassword ? 'text' : 'password'} required className="w-full px-4 py-3 rounded-xl border border-primary-200 dark:border-primary-700 bg-white dark:bg-gray-800 text-primary-900 dark:text-primary-100 focus:outline-none focus:ring-2 focus:ring-primary-300 pr-12" placeholder="تأكيد كلمة المرور" />
+                <input {...registerInit('confirmPassword')} type={showConfirmPassword ? 'text' : 'password'} required className="w-full px-4 py-3 rounded-xl border border-primary-200 dark:border-primary-700 bg-white dark:bg-gray-800 text-primary-900 dark:text-primary-100 focus:outline-none focus:ring-2 focus:ring-primary-300 pr-12" placeholder="تأكيد كلمة المرور" />
                 <button type="button" tabIndex={-1} onClick={() => setShowConfirmPassword((v) => !v)} className="absolute left-3 top-1/2 -translate-y-1/2 text-primary-400 hover:text-primary-600 dark:text-primary-300 dark:hover:text-primary-100 focus:outline-none">
                   {showConfirmPassword ? (
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -163,7 +177,7 @@ export default function LoginPage() {
                   )}
                 </button>
               </div>
-              {errors.confirmPassword && (<p className="text-sm text-red-600">{errors.confirmPassword.message}</p>)}
+              {initErrors.confirmPassword && (<p className="text-sm text-red-600">{initErrors.confirmPassword.message}</p>)}
             </div>
             <button type="submit" disabled={isLoading} className="w-full py-3 rounded-xl bg-primary-600 text-white font-bold text-lg shadow hover:bg-primary-700 transition">{isLoading ? 'جاري التهيئة...' : 'تهيئة النظام'}</button>
           </form>
@@ -182,12 +196,12 @@ export default function LoginPage() {
           <h2 className="text-3xl font-extrabold text-primary-900 dark:text-primary-200 mb-2">تسجيل الدخول</h2>
           <p className="text-gray-600 dark:text-gray-300">قم بتسجيل الدخول للوصول إلى لوحة التحكم</p>
         </div>
-        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+        <form className="space-y-6" onSubmit={handleSubmitLogin(onSubmit)}>
           <div className="space-y-4">
-            <input {...register('username')} type="text" required className="w-full px-4 py-3 rounded-xl border border-primary-200 dark:border-primary-700 bg-white dark:bg-gray-800 text-primary-900 dark:text-primary-100 focus:outline-none focus:ring-2 focus:ring-primary-300" placeholder="اسم المستخدم" />
-            {errors.username && (<p className="text-sm text-red-600">{errors.username.message}</p>)}
+            <input {...registerLogin('username')} type="text" required className="w-full px-4 py-3 rounded-xl border border-primary-200 dark:border-primary-700 bg-white dark:bg-gray-800 text-primary-900 dark:text-primary-100 focus:outline-none focus:ring-2 focus:ring-primary-300" placeholder="اسم المستخدم" />
+            {loginErrors.username && (<p className="text-sm text-red-600">{loginErrors.username.message}</p>)}
             <div className="relative">
-              <input {...register('password')} type={showPassword ? 'text' : 'password'} required className="w-full px-4 py-3 rounded-xl border border-primary-200 dark:border-primary-700 bg-white dark:bg-gray-800 text-primary-900 dark:text-primary-100 focus:outline-none focus:ring-2 focus:ring-primary-300 pr-12" placeholder="كلمة المرور" />
+              <input {...registerLogin('password')} type={showPassword ? 'text' : 'password'} required className="w-full px-4 py-3 rounded-xl border border-primary-200 dark:border-primary-700 bg-white dark:bg-gray-800 text-primary-900 dark:text-primary-100 focus:outline-none focus:ring-2 focus:ring-primary-300 pr-12" placeholder="كلمة المرور" />
               <button type="button" tabIndex={-1} onClick={() => setShowPassword((v) => !v)} className="absolute left-3 top-1/2 -translate-y-1/2 text-primary-400 hover:text-primary-600 dark:text-primary-300 dark:hover:text-primary-100 focus:outline-none">
                 {showPassword ? (
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -200,7 +214,7 @@ export default function LoginPage() {
                 )}
               </button>
             </div>
-            {errors.password && (<p className="text-sm text-red-600">{errors.password.message}</p>)}
+            {loginErrors.password && (<p className="text-sm text-red-600">{loginErrors.password.message}</p>)}
           </div>
 
           {error && (<div className="text-red-600 text-sm text-center">{error}</div>)}
