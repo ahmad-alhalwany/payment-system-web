@@ -8,8 +8,8 @@ interface ModernGroupBoxProps {
 
 export default function ModernGroupBox({ title, color = "#f5f5f5", children }: ModernGroupBoxProps) {
   return (
-    <div className="rounded-xl shadow p-6 mb-6" style={{ backgroundColor: color }}>
-      {title && <div className="text-lg font-bold mb-4 text-primary-800">{title}</div>}
+    <div className="rounded-2xl shadow-lg p-8 mb-8 border border-primary-100 bg-white/90" style={{ backgroundColor: color, boxShadow: '0 4px 24px #1976d220' }}>
+      {title && <div className="text-2xl font-extrabold mb-6 text-primary-800 drop-shadow-sm">{title}</div>}
       {children}
     </div>
   );

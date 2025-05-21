@@ -20,8 +20,12 @@ export default function PrintTransferView({ transfer, onClose }: PrintTransferVi
   // المبلغ المستفاد
   const benefit = transfer.benefited_amount ? transfer.benefited_amount.toLocaleString() : "-";
   const amount = transfer.amount ? transfer.amount.toLocaleString() : "-";
+
+  // Helper to display branch name
+  const displayBranch = (name: string | null | undefined) => !name || name === '-' ? 'الفرع الرئيسي' : name;
+
   return (
-    <div className="bg-white rounded-xl shadow-lg w-full max-w-2xl p-6 relative animate-fadeIn print:p-2">
+    <div className="bg-gradient-to-br from-primary-50 to-white rounded-2xl shadow-2xl w-full max-w-2xl p-4 relative animate-fadeIn print:p-2 border-2 border-primary-200">
       <button
         className="absolute left-4 top-4 text-gray-500 hover:text-red-500 text-2xl font-bold print:hidden"
         onClick={onClose}
@@ -29,63 +33,58 @@ export default function PrintTransferView({ transfer, onClose }: PrintTransferVi
       >
         ×
       </button>
-      <div className="flex flex-col md:flex-row gap-6 items-start justify-center">
-        {/* إيصال النظام */}
-        <div className="flex-1 border rounded-lg p-4 min-w-[260px] max-w-xs mx-auto">
-          <div className="text-center mb-2">
-            <h2 className="text-lg font-bold text-primary-800">إيصال النظام</h2>
-            <p className="text-xs text-gray-600">رقم التحويل: {transfer.id}</p>
-          </div>
-          <div className="grid grid-cols-1 gap-1 text-sm">
-            <div><b>المرسل:</b> {transfer.sender}</div>
-            <div><b>المستلم:</b> {transfer.receiver}</div>
-            <div><b>رقم هاتف المرسل:</b> {senderMobile}</div>
-            <div><b>رقم هاتف المستلم:</b> {receiverMobile}</div>
-            <div><b>المبلغ:</b> {amount} {transfer.currency}</div>
-            <div className="text-xs text-gray-600">({numberToArabicWords(transfer.amount)} {transfer.currency})</div>
-            <div><b>المبلغ المستفاد:</b> {benefit} {transfer.currency}</div>
-            <div><b>التاريخ:</b> {date}</div>
-            <div><b>الوقت:</b> {time}</div>
-            <div><b>الفرع المرسل:</b> {transfer.sending_branch_name || "-"}</div>
-            <div><b>الفرع المستلم:</b> {transfer.destination_branch_name || "-"}</div>
-            <div><b>اسم الموظف:</b> {transfer.employee_name}</div>
-            <div><b>الحالة:</b> {transfer.status}</div>
-          </div>
-          <div className="text-center text-xs text-gray-500 mt-2">
-            <p>تم طباعة هذا الإيصال بتاريخ {new Date().toLocaleDateString('ar-SA')}</p>
-            <p>وقت الطباعة: {new Date().toLocaleTimeString('ar-SA')}</p>
+      <div className="flex flex-col items-center gap-1 mb-4">
+        <div className="text-3xl font-extrabold text-primary-700 tracking-tight mb-1">
+          {operationType}
+        </div>
+        <h2 className="text-2xl font-extrabold text-primary-700 tracking-tight">إيصال العميل</h2>
+        <span className="text-xs text-gray-400">يرجى الاحتفاظ بهذا الإيصال</span>
       </div>
+      <div className="bg-white rounded-xl shadow p-2 w-full mb-2 border border-primary-100">
+        {/* Horizontal info row */}
+        <div className="grid grid-cols-3 gap-2 text-center mb-2">
+          <div className="font-semibold text-primary-700">رقم التحويل</div>
+          <div className="font-semibold text-primary-700">الفرع المرسل</div>
+          <div className="font-semibold text-primary-700">الفرع المستلم</div>
         </div>
-        {/* خط فاصل */}
-        <div className="flex flex-col items-center justify-center">
-          <div className="w-full border-t-2 border-dashed border-gray-400 my-2 md:my-0 md:w-0 md:h-32 md:border-l-2 md:border-t-0"></div>
+        <div className="grid grid-cols-3 gap-2 text-center mb-2">
+          <div className="break-all">{transfer.id}</div>
+          <div>{displayBranch(transfer.sending_branch_name)}</div>
+          <div>{displayBranch(transfer.destination_branch_name)}</div>
         </div>
-        {/* إيصال العميل */}
-        <div className="flex-1 border rounded-lg p-4 min-w-[260px] max-w-xs mx-auto">
-          <div className="text-center mb-2">
-            <h2 className="text-lg font-bold text-primary-700">إيصال العميل</h2>
+        <hr className="my-2 border-primary-100" />
+        {/* Sender info row */}
+        <div className="grid grid-cols-2 gap-2 text-center mb-2">
+          <div><span className="font-semibold">اسم المرسل</span><br />{transfer.sender}</div>
+          <div><span className="font-semibold">رقم هاتف المرسل</span><br />{senderMobile}</div>
         </div>
-          <div className="grid grid-cols-1 gap-1 text-sm">
-            <div><b>نوع العملية:</b> {operationType}</div>
-            <div><b>المرسل:</b> {transfer.sender}</div>
-            <div><b>رقم هاتف المرسل:</b> {senderMobile}</div>
-            <div><b>المستلم:</b> {transfer.receiver}</div>
-            <div><b>رقم هاتف المستلم:</b> {receiverMobile}</div>
-            <div><b>من الفرع:</b> {transfer.sending_branch_name || "-"}</div>
-            <div><b>إلى الفرع:</b> {transfer.destination_branch_name || "-"}</div>
-            <div><b>التاريخ:</b> {date}</div>
-            <div><b>الوقت:</b> {time}</div>
-            <div><b>المبلغ:</b> {amount} {transfer.currency}</div>
-            <div className="text-xs text-gray-600">({numberToArabicWords(transfer.amount)} {transfer.currency})</div>
-            <div><b>المبلغ المستفاد:</b> {benefit} {transfer.currency}</div>
+        {/* Receiver info row */}
+        <div className="grid grid-cols-2 gap-2 text-center mb-2">
+          <div><span className="font-semibold">اسم المستلم</span><br />{transfer.receiver}</div>
+          <div><span className="font-semibold">رقم هاتف المستلم</span><br />{receiverMobile}</div>
         </div>
-          <div className="text-center text-xs text-gray-500 mt-2">
-            <p>تم طباعة هذا الإيصال بتاريخ {new Date().toLocaleDateString('ar-SA')}</p>
-            <p>وقت الطباعة: {new Date().toLocaleTimeString('ar-SA')}</p>
+        {/* Date and time row */}
+        <div className="grid grid-cols-2 gap-2 text-center mb-2">
+          <div><span className="font-semibold">التاريخ</span><br />{date}</div>
+          <div><span className="font-semibold">الوقت</span><br />{time}</div>
         </div>
+        <hr className="my-2 border-primary-100" />
+        {/* Amounts */}
+        <div className="text-center my-2">
+          <div className="font-bold text-primary-700 text-lg">المبلغ</div>
+          <div className="text-lg font-bold text-primary-800">{amount} {transfer.currency}</div>
+          <div className="text-xs text-gray-600">({numberToArabicWords(transfer.amount)} {transfer.currency})</div>
+        </div>
+        <div className="text-center my-2">
+          <div className="font-bold">المبلغ المستفاد</div>
+          <div>{benefit} {transfer.currency}</div>
         </div>
       </div>
-      <div className="flex justify-center gap-4 mt-8 print:hidden">
+      <div className="text-center text-xs text-gray-500 mt-1 mb-3">
+        <p>تم طباعة هذا الإيصال بتاريخ {new Date().toLocaleDateString('ar-SA')}</p>
+        <p>وقت الطباعة: {new Date().toLocaleTimeString('ar-SA')}</p>
+      </div>
+      <div className="flex justify-center gap-4 mt-2 print:hidden">
         <button
           className="bg-gray-400 text-white px-6 py-2 rounded-lg font-bold hover:bg-gray-500 transition"
           onClick={onClose}
@@ -93,7 +92,7 @@ export default function PrintTransferView({ transfer, onClose }: PrintTransferVi
           إغلاق
         </button>
         <button
-          className="bg-primary-600 text-white px-8 py-2 rounded-lg font-bold hover:bg-primary-700 transition"
+          className="bg-primary-600 text-white px-8 py-2 rounded-lg font-bold hover:bg-primary-700 transition shadow"
           onClick={() => window.print()}
         >
           طباعة

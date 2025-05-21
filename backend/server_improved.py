@@ -2166,16 +2166,24 @@ def get_transactions_stats(db: Session = Depends(get_db), current_user: dict = D
 
 @app.get("/transactions/{transaction_id}/")
 def get_transaction(transaction_id: str, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
-    # Get transaction
-    transaction = db.query(Transaction).filter(Transaction.id == transaction_id).first()
-    
-    if not transaction:
+    SendingBranch = aliased(Branch)
+    DestinationBranch = aliased(Branch)
+    # Get transaction with branch names
+    result = db.query(
+        Transaction,
+        SendingBranch.name.label('sending_branch_name'),
+        DestinationBranch.name.label('destination_branch_name')
+    ).outerjoin(
+        SendingBranch, Transaction.branch_id == SendingBranch.id
+    ).outerjoin(
+        DestinationBranch, Transaction.destination_branch_id == DestinationBranch.id
+    ).filter(Transaction.id == transaction_id).first()
+    if not result:
         raise HTTPException(status_code=404, detail="Transaction not found")
-    
+    transaction, sending_branch_name, destination_branch_name = result
     # Branch managers can only view transactions from their branch
     if current_user["role"] == "branch_manager" and transaction.branch_id != current_user["branch_id"]:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You can only view transactions from your branch")
-    
     # Convert transaction to dictionary
     transaction_dict = {
         "id": transaction.id,
@@ -2205,9 +2213,10 @@ def get_transaction(transaction_id: str, db: Session = Depends(get_db), current_
         "employee_id": transaction.employee_id,
         "status": transaction.status,
         "date": transaction.date,
-        "is_received": transaction.is_received
+        "is_received": transaction.is_received,
+        "sending_branch_name": "المركزية" if transaction.branch_id in [0, None] else sending_branch_name,
+        "destination_branch_name": destination_branch_name
     }
-    
     return transaction_dict
 
 @app.get("/notifications/")

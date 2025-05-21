@@ -62,74 +62,31 @@ export default function UserSettingsForm({ username }: UserSettingsFormProps) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6 mb-6">
-      <h2 className="text-xl font-bold mb-4 text-primary-700">إعدادات المستخدم</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="bg-white/90 rounded-2xl shadow-xl p-6 mb-8 border border-primary-100">
+      <h2 className="text-2xl font-bold mb-6 text-primary-700 drop-shadow">إعدادات المستخدم</h2>
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            اسم المستخدم
-          </label>
-          <input
-            type="text"
-            value={username}
-            disabled
-            className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500"
-          />
+          <label className="block text-sm font-medium text-gray-700 mb-1">اسم المستخدم</label>
+          <input type="text" value={username} disabled className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-500" />
         </div>
-
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            كلمة المرور الحالية
-          </label>
-          <input
-            type="password"
-            name="oldPassword"
-            value={passwords.oldPassword}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-            required
-          />
+          <label className="block text-sm font-medium text-gray-700 mb-1">كلمة المرور الحالية</label>
+          <input type="password" name="oldPassword" value={passwords.oldPassword} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-200" required />
         </div>
-
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            كلمة المرور الجديدة
-          </label>
-          <input
-            type="password"
-            name="newPassword"
-            value={passwords.newPassword}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-            required
-          />
+          <label className="block text-sm font-medium text-gray-700 mb-1">كلمة المرور الجديدة</label>
+          <input type="password" name="newPassword" value={passwords.newPassword} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-200" required />
         </div>
-
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            تأكيد كلمة المرور الجديدة
-          </label>
-          <input
-            type="password"
-            name="confirmPassword"
-            value={passwords.confirmPassword}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-            required
-          />
+          <label className="block text-sm font-medium text-gray-700 mb-1">تأكيد كلمة المرور الجديدة</label>
+          <input type="password" name="confirmPassword" value={passwords.confirmPassword} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-200" required />
         </div>
-
         {error && (
-          <div className="text-red-600 text-sm">{error}</div>
+          <div className="text-red-600 text-base font-semibold bg-red-50 border border-red-200 rounded-lg px-3 py-2 mt-2 animate-fade-in">{error}</div>
         )}
-
         <div className="flex justify-end">
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? 'جاري التغيير...' : 'تغيير كلمة المرور'}
+          <button type="submit" disabled={loading} className="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition font-bold shadow focus:outline-none focus:ring-2 focus:ring-primary-200 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+            <span>🔒</span> {loading ? 'جاري التغيير...' : 'تغيير كلمة المرور'}
           </button>
         </div>
       </form>

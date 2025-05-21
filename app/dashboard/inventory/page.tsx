@@ -8,6 +8,7 @@ import InventoryTransactionsTable from "@/components/inventory/InventoryTransact
 import InventoryExportButtons from "@/components/inventory/InventoryExportButtons";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, LabelList } from "recharts";
 import axiosInstance from '@/app/api/axios';
+import ModernGroupBox from "@/components/ui/ModernGroupBox";
 
 const BRANCHES = [
   { value: "all", label: "جميع الفروع" },
@@ -79,7 +80,7 @@ function mapTransactionsData(apiData: any[]): any[] {
     taxRate: typeof row.tax_rate === 'number' ? row.tax_rate : (row.taxRate || 0),
     taxAmount: row.tax_amount || row.taxAmount || 0,
     currency: row.currency || 'SYP',
-    sendingBranch: row.sending_branch_name || row.sendingBranch || row.source_branch || 'غير معروف',
+    sendingBranch: (!row.sending_branch_name && !row.sendingBranch && !row.source_branch) || row.sending_branch_name === 'غير معروف' || row.sendingBranch === 'غير معروف' || row.source_branch === 'غير معروف' ? 'الفرع الرئيسي' : (row.sending_branch_name || row.sendingBranch || row.source_branch || 'غير معروف'),
     receivingBranch: row.destination_branch_name || row.receivingBranch || row.destination_branch || 'غير معروف',
     status: row.status || '',
     profit: typeof row.profit === 'number' ? row.profit : ((row.benefited_amount || 0) - (row.tax_amount || 0)),
@@ -221,61 +222,63 @@ export default function InventoryPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">المخزون</h1>
+    <div className="max-w-7xl mx-auto px-2 sm:px-4 py-6 sm:py-10">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-primary-800 text-center">المخزون</h1>
 
       {(error || info) && (
-        <div className={`mb-4 px-4 py-3 rounded text-center font-bold ${error ? 'bg-red-100 text-red-700 border border-red-400' : 'bg-blue-100 text-blue-700 border border-blue-400'}`}>
+        <div className={`mb-4 p-4 rounded-lg text-center font-bold flex items-center justify-center gap-2 ${error ? 'bg-red-100 text-red-700 border border-red-400' : 'bg-blue-100 text-blue-700 border border-blue-400'}`}>
           {error || info}
         </div>
       )}
 
-      <InventorySummary
-        taxCollected={summary.taxCollected}
-        transactionsCount={summary.transactionsCount}
-        totalProfit={summary.totalProfit}
-        avgTaxRate={summary.avgTaxRate}
-      />
+      <ModernGroupBox color="#fff">
+        <InventorySummary
+          taxCollected={summary.taxCollected}
+          transactionsCount={summary.transactionsCount}
+          totalProfit={summary.totalProfit}
+          avgTaxRate={summary.avgTaxRate}
+        />
+      </ModernGroupBox>
 
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-          <InventoryFilters
-            fromDate={fromDate}
-            setFromDate={setFromDate}
-            toDate={toDate}
-            setToDate={setToDate}
-            branch={branch}
-            setBranch={setBranch}
-            currency={currency}
-            setCurrency={setCurrency}
-            status={status}
-            setStatus={setStatus}
+      <ModernGroupBox color="#fff">
+        <InventoryFilters
+          fromDate={fromDate}
+          setFromDate={setFromDate}
+          toDate={toDate}
+          setToDate={setToDate}
+          branch={branch}
+          setBranch={setBranch}
+          currency={currency}
+          setCurrency={setCurrency}
+          status={status}
+          setStatus={setStatus}
           onApply={fetchInventoryData}
           onRefresh={fetchInventoryData}
-            branches={BRANCHES}
-            currencies={CURRENCIES}
-            statuses={STATUSES}
-          />
-      </div>
+          branches={BRANCHES}
+          currencies={CURRENCIES}
+          statuses={STATUSES}
+        />
+      </ModernGroupBox>
 
-      <div className="flex justify-end mb-4">
-          <InventoryExportButtons
+      <div className="flex flex-col sm:flex-row justify-end gap-2 mb-4">
+        <InventoryExportButtons
           onPdf={handleExportPdf}
           onExcel={handleExportCsv}
           disabled={loading}
         />
       </div>
 
-      <div className="bg-white rounded-lg shadow-lg p-6">
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex space-x-4">
+      <ModernGroupBox color="#fff">
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-2">
+          <div className="flex gap-2 w-full sm:w-auto justify-center">
             <button
-              className={`px-4 py-2 rounded ${activeTab === 'tables' ? 'bg-primary-500 text-white' : 'bg-gray-200'}`}
+              className={`px-4 py-2 rounded font-bold transition w-full sm:w-auto ${activeTab === 'tables' ? 'bg-primary-600 text-white shadow' : 'bg-gray-200 text-primary-800 hover:bg-primary-100'}`}
               onClick={() => setActiveTab('tables')}
             >
               الجداول
             </button>
             <button
-              className={`px-4 py-2 rounded ${activeTab === 'charts' ? 'bg-primary-500 text-white' : 'bg-gray-200'}`}
+              className={`px-4 py-2 rounded font-bold transition w-full sm:w-auto ${activeTab === 'charts' ? 'bg-primary-600 text-white shadow' : 'bg-gray-200 text-primary-800 hover:bg-primary-100'}`}
               onClick={() => setActiveTab('charts')}
             >
               الرسوم البيانية
@@ -285,41 +288,41 @@ export default function InventoryPage() {
 
         {activeTab === 'tables' ? (
           <>
-          <div ref={taxTableRef}>
+            <div ref={taxTableRef}>
               {taxTable.length === 0 ? (
                 <div className="text-center text-gray-500 py-8">لا توجد بيانات للجدول</div>
               ) : (
-            <InventoryTaxTable data={taxTable} />
+                <InventoryTaxTable data={taxTable} />
               )}
-          </div>
+            </div>
             <div ref={transTableRef} className="mt-6">
               {transactions.length === 0 ? (
                 <div className="text-center text-gray-500 py-8">لا توجد بيانات للجدول</div>
               ) : (
-            <InventoryTransactionsTable data={transactions} />
+                <InventoryTransactionsTable data={transactions} />
               )}
-          </div>
-        </>
+            </div>
+          </>
         ) : (
-          <div className="h-96">
+          <div className="h-96 w-full flex items-center justify-center">
             {taxTable.length === 0 ? (
               <div className="text-center text-gray-500 py-8">لا توجد بيانات للرسوم البيانية</div>
             ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={taxTable}>
-              <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="branchName" />
-                <YAxis />
-                <Tooltip />
-              <Legend />
-                <Bar dataKey="taxAmount" name="الضريبة" fill="#8884d8" />
-                <Bar dataKey="profit" name="الربح" fill="#82ca9d" />
-            </BarChart>
-          </ResponsiveContainer>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={taxTable}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="branchName" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="taxAmount" name="الضريبة" fill="#8884d8" />
+                  <Bar dataKey="profit" name="الربح" fill="#82ca9d" />
+                </BarChart>
+              </ResponsiveContainer>
             )}
-        </div>
-      )}
-      </div>
+          </div>
+        )}
+      </ModernGroupBox>
     </div>
   );
 } 

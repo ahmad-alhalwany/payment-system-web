@@ -7,6 +7,8 @@ import {
 import axiosInstance from '@/app/api/axios';
 import { SaveAlt } from '@mui/icons-material';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, PieChart, Pie, Cell } from 'recharts';
+import ModernGroupBox from "@/components/ui/ModernGroupBox";
+import ModernButton from "@/components/ui/ModernButton";
 
 const statusOptions = ["الكل", "مكتمل", "قيد المعالجة", "ملغي", "مرفوض", "معلق"];
 const typeOptions = ["الكل", "صادر", "وارد"];
@@ -141,21 +143,32 @@ export default function ReportsPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">التقارير</h1>
+    <div className="max-w-7xl mx-auto px-2 sm:px-4 py-6 sm:py-10">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-primary-800 text-center">التقارير</h1>
 
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 4 }}>
-        <Tabs value={tab} onChange={handleTabChange} aria-label="report tabs">
-          <Tab label="تقارير التحويلات" />
-          <Tab label="تقارير الفروع" />
-          <Tab label="تقارير الموظفين" />
-          <Tab label="التقارير اليومية" />
-          <Tab label="الرسوم البيانية" />
-        </Tabs>
-      </Box>
+      <div className="mb-6">
+        <div className="bg-white rounded-xl shadow flex flex-col items-center justify-center">
+          <Tabs
+            value={tab}
+            onChange={handleTabChange}
+            aria-label="report tabs"
+            className="w-full"
+            TabIndicatorProps={{ style: { background: '#3498db' } }}
+          >
+            <Tab label="تقارير التحويلات" className="!font-bold !text-primary-700" />
+            <Tab label="تقارير الفروع" className="!font-bold !text-primary-700" />
+            <Tab label="تقارير الموظفين" className="!font-bold !text-primary-700" />
+            <Tab label="التقارير اليومية" className="!font-bold !text-primary-700" />
+            <Tab label="الرسوم البيانية" className="!font-bold !text-primary-700" />
+          </Tabs>
+        </div>
+      </div>
 
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <Stack spacing={3}>
+      <ModernGroupBox color="#fff">
+        <form
+          className="space-y-4"
+          onSubmit={e => { e.preventDefault(); handleGenerate(); }}
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <TextField
               label="من تاريخ"
@@ -164,6 +177,7 @@ export default function ReportsPage() {
               onChange={(e) => setFromDate(e.target.value)}
               InputLabelProps={{ shrink: true }}
               fullWidth
+              className="bg-white rounded-lg"
             />
             <TextField
               label="إلى تاريخ"
@@ -172,6 +186,7 @@ export default function ReportsPage() {
               onChange={(e) => setToDate(e.target.value)}
               InputLabelProps={{ shrink: true }}
               fullWidth
+              className="bg-white rounded-lg"
             />
           </div>
 
@@ -183,6 +198,7 @@ export default function ReportsPage() {
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
                   label="الحالة"
+                  className="bg-white rounded-lg"
                 >
                   {statusOptions.map((option) => (
                     <MenuItem key={option} value={option}>
@@ -197,6 +213,7 @@ export default function ReportsPage() {
                   value={type}
                   onChange={(e) => setType(e.target.value)}
                   label="نوع التحويل"
+                  className="bg-white rounded-lg"
                 >
                   {typeOptions.map((option) => (
                     <MenuItem key={option} value={option}>
@@ -216,6 +233,7 @@ export default function ReportsPage() {
                   value={employeeStatus}
                   onChange={(e) => setEmployeeStatus(e.target.value)}
                   label="حالة الموظف"
+                  className="bg-white rounded-lg"
                 >
                   {employeeStatusOptions.map((option) => (
                     <MenuItem key={option} value={option}>
@@ -230,6 +248,7 @@ export default function ReportsPage() {
                   value={employeeRole}
                   onChange={(e) => setEmployeeRole(e.target.value)}
                   label="دور الموظف"
+                  className="bg-white rounded-lg"
                 >
                   {employeeRoleOptions.map((option) => (
                     <MenuItem key={option} value={option}>
@@ -243,41 +262,44 @@ export default function ReportsPage() {
                 value={employeeSearch}
                 onChange={(e) => setEmployeeSearch(e.target.value)}
                 fullWidth
+                className="bg-white rounded-lg"
               />
             </div>
           )}
 
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleGenerate}
-            disabled={loading}
-            className="w-full md:w-auto"
-          >
-            {loading ? "جاري التحميل..." : "توليد التقرير"}
-          </Button>
-        </Stack>
-      </div>
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full justify-end mt-2">
+            <ModernButton
+              color="#3498db"
+              type="submit"
+              disabled={loading}
+              className="w-full sm:w-auto"
+            >
+              {loading ? "جاري التحميل..." : "توليد التقرير"}
+            </ModernButton>
+          </div>
+        </form>
+      </ModernGroupBox>
 
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
+        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center justify-between">
+          <span>{error}</span>
         </div>
       )}
 
       {tab !== 4 && showTable && Array.isArray(data) && data.length > 0 && (
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <div className="flex justify-end mb-2">
-            <Button variant="outlined" color="success" startIcon={<SaveAlt />} onClick={exportToCSV}>
+        <ModernGroupBox color="#fff">
+          <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-2">
+            <div></div>
+            <ModernButton color="#2ecc71" onClick={exportToCSV} className="w-full sm:w-auto">
               تصدير إلى CSV
-            </Button>
+            </ModernButton>
           </div>
-          <div className="overflow-x-auto">
-          <Table>
-            <TableHead>
-              <TableRow>
-                {Object.keys(data[0]).map((key) => (
-                    <TableCell key={key} className="font-bold">
+          <div className="overflow-x-auto rounded-xl border border-primary-100">
+            <Table className="min-w-full bg-white rounded-xl overflow-hidden">
+              <TableHead className="bg-primary-50">
+                <TableRow>
+                  {Object.keys(data[0]).map((key) => (
+                    <TableCell key={key} className="font-bold text-primary-800 text-xs sm:text-sm text-center whitespace-nowrap">
                       {(() => {
                         if (tab === 1) {
                           switch (key) {
@@ -322,10 +344,10 @@ export default function ReportsPage() {
                         }
                       })()}
                     </TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
                 {data
                   .filter(row =>
                     tab !== 2 || (
@@ -334,75 +356,100 @@ export default function ReportsPage() {
                       (employeeSearch.trim() === '' || (row.username && row.username.includes(employeeSearch.trim())) || (row.branch_name && row.branch_name.includes(employeeSearch.trim())))
                     )
                   )
-                  .map((row, index) => (
-                <TableRow key={index}>
-                  {Object.values(row).map((value: any, i) => (
-                        <TableCell key={i}>{value === true ? 'نعم' : value === false ? 'لا' : value}</TableCell>
-                  ))}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                  .map((row, index) => {
+                    const patchedRow = { ...row };
+                    if (tab === 1) {
+                      if (!patchedRow.branch_id) patchedRow.branch_id = 0;
+                      if (!patchedRow.name) patchedRow.name = 'الفرع الرئيسي';
+                    } else if (tab === 2) {
+                      if (!patchedRow.branch_id) patchedRow.branch_id = 0;
+                      if (!patchedRow.branch_name) patchedRow.branch_name = 'الفرع الرئيسي';
+                    } else if (tab === 0) {
+                      if (!patchedRow.sending_branch_id) patchedRow.sending_branch_id = 0;
+                      if (!patchedRow.sending_branch_name || patchedRow.sending_branch_name === 'غير معروف') patchedRow.sending_branch_name = 'الفرع الرئيسي';
+                      if (!patchedRow.branch_id) patchedRow.branch_id = 0;
+                    } else {
+                      if (!patchedRow.sending_branch_id) patchedRow.sending_branch_id = 0;
+                      if (!patchedRow.sending_branch_name) patchedRow.sending_branch_name = 'الفرع الرئيسي';
+                      if (!patchedRow.destination_branch_id) patchedRow.destination_branch_id = 0;
+                      if (!patchedRow.destination_branch_name) patchedRow.destination_branch_name = 'الفرع الرئيسي';
+                    }
+                    return (
+                      <TableRow key={index} className="hover:bg-primary-50/80 transition-all">
+                        {Object.values(patchedRow).map((value: any, i) => (
+                          <TableCell key={i} className="text-center text-xs sm:text-sm whitespace-nowrap">
+                            {value === true ? 'نعم' : value === false ? 'لا' : value}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    );
+                  })}
+              </TableBody>
+            </Table>
           </div>
-        </div>
+        </ModernGroupBox>
       )}
 
       {tab === 4 && (
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-xl font-bold mb-4">الرسوم البيانية</h2>
-          <Tabs value={chartTab} onChange={(_, v) => setChartTab(v)} aria-label="chart tabs">
-            <Tab label="مبالغ التحويلات" />
-            <Tab label="عدد العمليات حسب الحالة" />
-          </Tabs>
-          {chartTab === 0 && Array.isArray(data) && data.length > 0 && (
-            <ResponsiveContainer width="100%" height={350}>
-              <BarChart data={data}>
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="amount" fill="#8884d8" name="المبلغ" />
-              </BarChart>
-            </ResponsiveContainer>
-          )}
-          {chartTab === 1 && Array.isArray(data) && data.length > 0 && (
-            <ResponsiveContainer width="100%" height={350}>
-              <PieChart>
-                <Pie
-                  data={Object.entries(data.reduce((acc, cur) => {
-                    acc[cur.status] = (acc[cur.status] || 0) + 1;
-                    return acc;
-                  }, {})).map(([status, count]) => ({ name: status, value: count }))}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={120}
-                  fill="#82ca9d"
-                  label
-                >
-                  {Object.entries(data.reduce((acc, cur) => {
-                    acc[cur.status] = (acc[cur.status] || 0) + 1;
-                    return acc;
-                  }, {})).map(([status], idx) => (
-                    <Cell key={status} fill={["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#a4de6c"][idx % 5]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          )}
-          {(!Array.isArray(data) || data.length === 0) && (
-            <div className="text-center text-gray-500 py-4">لا توجد بيانات لعرض الرسم البياني</div>
-          )}
-        </div>
+        <ModernGroupBox color="#fff">
+          <h2 className="text-xl font-bold mb-4 text-center text-primary-800">الرسوم البيانية</h2>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6">
+            <Tabs value={chartTab} onChange={(_, v) => setChartTab(v)} aria-label="chart tabs">
+              <Tab label="مبالغ التحويلات" className="!font-bold !text-primary-700" />
+              <Tab label="عدد العمليات حسب الحالة" className="!font-bold !text-primary-700" />
+            </Tabs>
+          </div>
+          <div className="w-full min-h-[300px] flex items-center justify-center">
+            {chartTab === 0 && Array.isArray(data) && data.length > 0 && (
+              <ResponsiveContainer width="100%" height={350}>
+                <BarChart data={data}>
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="amount" fill="#8884d8" name="المبلغ" />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+            {chartTab === 1 && Array.isArray(data) && data.length > 0 && (
+              <ResponsiveContainer width="100%" height={350}>
+                <PieChart>
+                  <Pie
+                    data={Object.entries(data.reduce((acc, cur) => {
+                      acc[cur.status] = (acc[cur.status] || 0) + 1;
+                      return acc;
+                    }, {})).map(([status, count]) => ({ name: status, value: count }))}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={120}
+                    fill="#82ca9d"
+                    label
+                  >
+                    {Object.entries(data.reduce((acc, cur) => {
+                      acc[cur.status] = (acc[cur.status] || 0) + 1;
+                      return acc;
+                    }, {})).map(([status], idx) => (
+                      <Cell key={status} fill={["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#a4de6c"][idx % 5]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+            {(!Array.isArray(data) || data.length === 0) && (
+              <div className="text-center text-gray-500 py-4">لا توجد بيانات لعرض الرسم البياني</div>
+            )}
+          </div>
+        </ModernGroupBox>
       )}
 
       {tab === 3 && showTable && data && data.summary && (
-        <div className="bg-white rounded-lg shadow-lg p-6 max-w-xl mx-auto mt-8">
-          <h2 className="text-xl font-bold mb-4 text-center">ملخص العمليات اليومية</h2>
-          <ul className="space-y-3 text-lg">
+        <ModernGroupBox color="#fff">
+          <h2 className="text-xl font-bold mb-4 text-center text-primary-800">ملخص العمليات اليومية</h2>
+          <ul className="space-y-3 text-lg text-primary-900">
             <li><b>إجمالي عدد العمليات:</b> {data.summary.total_count}</li>
             <li><b>إجمالي المبالغ:</b> {data.summary.total_amount.toLocaleString()} ل.س</li>
             <li><b>إجمالي الضرائب:</b> {data.summary.total_tax.toLocaleString()} ل.س</li>
@@ -412,13 +459,13 @@ export default function ReportsPage() {
             <li><b>عدد العمليات المرفوضة:</b> {data.summary.rejected_count}</li>
             <li><b>عدد العمليات قيد الانتظار:</b> {data.summary.pending_count}</li>
           </ul>
-        </div>
+        </ModernGroupBox>
       )}
 
       {tab === 3 && showTable && (!data || !data.summary || data.summary.total_count === 0) && (
-        <div className="bg-white rounded-lg shadow-lg p-6 max-w-xl mx-auto mt-8 text-center text-gray-500 text-lg">
-          لا يوجد تقارير لليوم
-        </div>
+        <ModernGroupBox color="#fff">
+          <div className="text-center text-gray-500 text-lg">لا يوجد تقارير لليوم</div>
+        </ModernGroupBox>
       )}
     </div>
   );

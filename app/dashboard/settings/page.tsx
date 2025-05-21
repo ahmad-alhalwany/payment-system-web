@@ -121,110 +121,66 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">جاري التحميل...</div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-blue-50">
+        <div className="text-center text-lg font-semibold text-primary-700 animate-pulse">جاري التحميل...</div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6 text-primary-700">الإعدادات</h1>
-      
-      <div className="space-y-6">
-        <SystemSettingsForm
-          initialData={systemSettings}
-          onSave={handleSystemSettingsChange}
-        />
-
-        <UserSettingsForm username={username} />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* تغيير كلمة المرور */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">تغيير كلمة المرور</h2>
-            <form onSubmit={handlePasswordChange} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  كلمة المرور الحالية
-                </label>
-                <input
-                  type="password"
-                  value={oldPassword}
-                  onChange={(e) => setOldPassword(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  كلمة المرور الجديدة
-                </label>
-                <input
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  تأكيد كلمة المرور الجديدة
-                </label>
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-primary-500 text-white py-2 px-4 rounded-md hover:bg-primary-600 disabled:opacity-50"
-              >
-                {loading ? 'جاري التغيير...' : 'تغيير كلمة المرور'}
-              </button>
-            </form>
-          </div>
-
-          {/* النسخ الاحتياطي */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">النسخ الاحتياطي</h2>
-            <div className="space-y-4">
-              <button
-                onClick={handleBackup}
-                disabled={loading}
-                className="w-full bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 disabled:opacity-50"
-              >
-                {loading ? 'جاري النسخ...' : 'إنشاء نسخة احتياطية'}
-              </button>
-
-              <div className="border-t pt-4">
-                <h3 className="text-lg font-medium mb-2">استعادة نسخة احتياطية</h3>
-                <input
-                  type="file"
-                  accept=".sqlite"
-                  onChange={handleRestore}
-                  disabled={loading}
-                  className="w-full"
-                />
-                <p className="text-sm text-gray-500 mt-2">
-                  اختر ملف النسخة الاحتياطية (.sqlite) للاستعادة
-                </p>
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-blue-50 py-8 px-2 sm:px-4">
+      <div className="max-w-3xl mx-auto">
+        <h1 className="text-3xl font-extrabold mb-8 text-primary-700 text-center drop-shadow">الإعدادات</h1>
+        <div className="space-y-8">
+          <SystemSettingsForm
+            initialData={systemSettings}
+            onSave={handleSystemSettingsChange}
+          />
+          <UserSettingsForm username={username} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* تغيير كلمة المرور */}
+            <div className="bg-white/90 rounded-2xl shadow-xl p-6 border border-primary-100 flex flex-col justify-between">
+              <h2 className="text-xl font-semibold mb-4 text-primary-700">تغيير كلمة المرور</h2>
+              <form onSubmit={handlePasswordChange} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">كلمة المرور الحالية</label>
+                  <input type="password" value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-200" required />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">كلمة المرور الجديدة</label>
+                  <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-200" required />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">تأكيد كلمة المرور الجديدة</label>
+                  <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-200" required />
+                </div>
+                <button type="submit" disabled={loading} className="w-full bg-primary-500 text-white py-2 px-4 rounded-lg hover:bg-primary-600 transition font-bold shadow disabled:opacity-50 flex items-center justify-center gap-2">
+                  <span>🔒</span> {loading ? 'جاري التغيير...' : 'تغيير كلمة المرور'}
+                </button>
+              </form>
+            </div>
+            {/* النسخ الاحتياطي */}
+            <div className="bg-white/90 rounded-2xl shadow-xl p-6 border border-primary-100 flex flex-col justify-between">
+              <h2 className="text-xl font-semibold mb-4 text-primary-700">النسخ الاحتياطي</h2>
+              <div className="space-y-4">
+                <button onClick={handleBackup} disabled={loading} className="w-full bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition font-bold shadow disabled:opacity-50 flex items-center justify-center gap-2">
+                  <span>💾</span> {loading ? 'جاري النسخ...' : 'إنشاء نسخة احتياطية'}
+                </button>
+                <div className="border-t pt-4">
+                  <h3 className="text-lg font-medium mb-2 text-primary-700">استعادة نسخة احتياطية</h3>
+                  <input type="file" accept=".sqlite" onChange={handleRestore} disabled={loading} className="w-full file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100" />
+                  <p className="text-sm text-gray-500 mt-2">اختر ملف النسخة الاحتياطية (.sqlite) للاستعادة</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
+        {error && (
+          <div className="fixed bottom-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-lg animate-fade-in text-base font-semibold z-50">
+            {error}
+          </div>
+        )}
       </div>
-
-      {error && (
-        <div className="fixed bottom-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          {error}
-        </div>
-      )}
     </div>
   );
 } 

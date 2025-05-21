@@ -7,6 +7,7 @@ import axiosInstance from "@/app/api/axios";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import ResetPasswordModal from '@/components/shared/ResetPasswordModal';
+import { FiUser, FiUserCheck, FiUserX, FiEdit2, FiTrash2, FiKey } from "react-icons/fi";
 
 interface Employee {
   id: number;
@@ -227,162 +228,196 @@ export default function EmployeesPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-2 sm:px-4 py-6 sm:py-8">
       {isLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded-lg shadow-lg">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
-            <p className="mt-2 text-gray-600">جاري التحميل...</p>
+          <div className="bg-white p-6 rounded-2xl shadow-2xl flex flex-col items-center">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-500"></div>
+            <p className="mt-4 text-gray-700 font-semibold">جاري التحميل...</p>
           </div>
         </div>
       )}
 
       {errorMessage && (
-        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-          {errorMessage}
-          <button className="float-left" onClick={() => setErrorMessage("")}>×</button>
+        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center justify-between">
+          <span>{errorMessage}</span>
+          <button className="text-xl font-bold hover:text-red-900" onClick={() => setErrorMessage("")}>×</button>
         </div>
       )}
 
       {successMessage && (
-        <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-          {successMessage}
-          <button className="float-left" onClick={() => setSuccessMessage("")}>×</button>
+        <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex items-center justify-between">
+          <span>{successMessage}</span>
+          <button className="text-xl font-bold hover:text-green-900" onClick={() => setSuccessMessage("")}>×</button>
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow-lg p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">إدارة الموظفين</h1>
-          <div className="flex gap-4">
-            <ModernButton color="#2ecc71" onClick={handleAdd}>
-              إضافة موظف
-            </ModernButton>
-            <ModernButton color="#3498db" onClick={handleEdit} disabled={!selectedId}>
-              تعديل
-            </ModernButton>
-            <ModernButton color="#e74c3c" onClick={() => setDeleteConfirmOpen(true)} disabled={!selectedId}>
-              حذف
-            </ModernButton>
-            <ModernButton color="#f59e42" onClick={handleRefresh}>
-              تحديث
-            </ModernButton>
+      <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+          <h1 className="text-2xl font-bold text-primary-700">إدارة الموظفين</h1>
+          <div className="flex flex-wrap gap-2 sm:gap-4">
+            <ModernButton color="#2ecc71" onClick={handleAdd} className="min-w-[110px]">إضافة موظف</ModernButton>
+            <ModernButton color="#3498db" onClick={handleEdit} disabled={!selectedId} className="min-w-[90px]">تعديل</ModernButton>
+            <ModernButton color="#e74c3c" onClick={() => setDeleteConfirmOpen(true)} disabled={!selectedId} className="min-w-[80px]">حذف</ModernButton>
+            <ModernButton color="#f59e42" onClick={handleRefresh} className="min-w-[80px]">تحديث</ModernButton>
           </div>
         </div>
 
         {/* فلاتر البحث */}
-        <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-        <input
-          type="text"
-              placeholder="بحث..."
-          value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-        />
-          </div>
-          <div>
-        <select
-          value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-        >
-              {roles.map(role => (
-                <option key={role} value={role}>{role}</option>
-              ))}
-        </select>
-          </div>
+        <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <input
+            type="text"
+            placeholder="بحث..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-lg border border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 px-4 py-2 text-right"
+          />
+          <select
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}
+            className="w-full rounded-lg border border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 px-4 py-2 text-right"
+          >
+            {roles.map(role => (
+              <option key={role} value={role}>{role}</option>
+            ))}
+          </select>
         </div>
 
         {/* جدول الموظفين */}
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+        <div className="hidden md:block overflow-x-auto rounded-2xl shadow-lg border border-primary-100">
+          <table className="min-w-full bg-white rounded-2xl overflow-hidden">
+            <thead className="bg-primary-50">
               <tr>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onClick={() => handleSort("username")}>
-                  اسم المستخدم {sortField === "username" && (sortOrder === "asc" ? "↑" : "↓")}
+                <th className="px-6 py-3 text-right text-xs font-bold text-primary-700 uppercase tracking-wider cursor-pointer" onClick={() => handleSort("username")}> 
+                  <span className="flex items-center gap-1 justify-end">
+                    <FiUser className="inline text-primary-400" /> اسم المستخدم {sortField === "username" && (sortOrder === "asc" ? "↑" : "↓")}
+                  </span>
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onClick={() => handleSort("role")}>
-                  الدور {sortField === "role" && (sortOrder === "asc" ? "↑" : "↓")}
+                <th className="px-6 py-3 text-right text-xs font-bold text-primary-700 uppercase tracking-wider cursor-pointer" onClick={() => handleSort("role")}> 
+                  <span className="flex items-center gap-1 justify-end">
+                    <FiUserCheck className="inline text-primary-400" /> الدور {sortField === "role" && (sortOrder === "asc" ? "↑" : "↓")}
+                  </span>
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onClick={() => handleSort("branch_name")}>
-                  الفرع {sortField === "branch_name" && (sortOrder === "asc" ? "↑" : "↓")}
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onClick={() => handleSort("created_at")}>
-                  تاريخ الإنشاء {sortField === "created_at" && (sortOrder === "asc" ? "↑" : "↓")}
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  الحالة
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  الإجراءات
-                </th>
-            </tr>
-          </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+                <th className="px-6 py-3 text-right text-xs font-bold text-primary-700 uppercase tracking-wider cursor-pointer" onClick={() => handleSort("branch_name")}>الفرع {sortField === "branch_name" && (sortOrder === "asc" ? "↑" : "↓")}</th>
+                <th className="px-6 py-3 text-right text-xs font-bold text-primary-700 uppercase tracking-wider cursor-pointer" onClick={() => handleSort("created_at")}>تاريخ الإنشاء {sortField === "created_at" && (sortOrder === "asc" ? "↑" : "↓")}</th>
+                <th className="px-6 py-3 text-right text-xs font-bold text-primary-700 uppercase tracking-wider">الحالة</th>
+                <th className="px-6 py-3 text-right text-xs font-bold text-primary-700 uppercase tracking-wider">الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-primary-100">
               {Array.isArray(filteredEmployees) && filteredEmployees.map((employee) => (
                 <tr
                   key={employee.id}
                   onClick={() => setSelectedId(employee.id)}
-                  className={`cursor-pointer hover:bg-gray-50 ${selectedId === employee.id ? 'bg-primary-50' : ''}`}
+                  className={`cursor-pointer transition-all duration-200 hover:bg-primary-50/80 ${selectedId === employee.id ? 'bg-primary-100 shadow-md scale-[1.01] border-r-4 border-primary-400' : ''}`}
                 >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{employee.username}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{employee.role}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{employee.branch_name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-primary-900 font-medium flex items-center gap-2 justify-end">
+                    <FiUser className="text-primary-300" /> {employee.username}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-primary-900 flex items-center gap-2 justify-end">
+                    <FiUserCheck className="text-primary-300" /> {employee.role}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-primary-900">{employee.branch_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-primary-900">
                     {employee.created_at ? format(new Date(employee.created_at), "dd MMMM yyyy", { locale: ar }) : "-"}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      employee.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
+                    <span className={`px-2 py-1 inline-flex items-center gap-1 text-xs leading-5 font-semibold rounded-full shadow-sm
+                      ${employee.is_active ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'}
+                    `}>
+                      {employee.is_active ? <FiUserCheck className="text-green-400" /> : <FiUserX className="text-red-400" />}
                       {employee.is_active ? 'نشط' : 'غير نشط'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <div className="flex space-x-2">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-primary-900">
+                    <div className="flex gap-2 justify-end">
                       <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEdit();
-                        }}
-                        className="text-blue-600 hover:text-blue-900"
+                        onClick={(e) => { e.stopPropagation(); handleEdit(); }}
+                        className="bg-blue-50 hover:bg-blue-100 text-blue-700 p-2 rounded-full shadow transition border border-blue-100"
+                        title="تعديل"
                       >
-                        تعديل
+                        <FiEdit2 size={18} />
                       </button>
                       <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleResetPassword(employee);
-                        }}
-                        className="text-green-600 hover:text-green-900"
+                        onClick={(e) => { e.stopPropagation(); handleResetPassword(employee); }}
+                        className="bg-green-50 hover:bg-green-100 text-green-700 p-2 rounded-full shadow transition border border-green-100"
+                        title="تغيير كلمة المرور"
                       >
-                        تغيير كلمة المرور
+                        <FiKey size={18} />
                       </button>
                       <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedId(employee.id);
-                          setDeleteConfirmOpen(true);
-                        }}
-                        className="text-red-600 hover:text-red-900"
+                        onClick={(e) => { e.stopPropagation(); setSelectedId(employee.id); setDeleteConfirmOpen(true); }}
+                        className="bg-red-50 hover:bg-red-100 text-red-700 p-2 rounded-full shadow transition border border-red-100"
+                        title="حذف"
                       >
-                        حذف
+                        <FiTrash2 size={18} />
                       </button>
                     </div>
                   </td>
                 </tr>
               ))}
-          </tbody>
-        </table>
-      </div>
+            </tbody>
+          </table>
+        </div>
+
+        {/* عرض كروت في الشاشات الصغيرة */}
+        <div className="md:hidden flex flex-col gap-4">
+          {Array.isArray(filteredEmployees) && filteredEmployees.map((employee) => (
+            <div
+              key={employee.id}
+              onClick={() => setSelectedId(employee.id)}
+              className={`rounded-xl border border-primary-100 shadow-md p-4 transition-all duration-200 bg-white cursor-pointer hover:bg-primary-50/80 ${selectedId === employee.id ? 'bg-primary-100 border-primary-400 scale-[1.01]' : ''}`}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <FiUser className="text-primary-400" />
+                  <span className="font-bold text-primary-900">{employee.username}</span>
+                </div>
+                <span className={`px-2 py-1 inline-flex items-center gap-1 text-xs leading-5 font-semibold rounded-full shadow-sm
+                  ${employee.is_active ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'}
+                `}>
+                  {employee.is_active ? <FiUserCheck className="text-green-400" /> : <FiUserX className="text-red-400" />}
+                  {employee.is_active ? 'نشط' : 'غير نشط'}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-2 mb-2 text-sm text-primary-700">
+                <div className="flex items-center gap-1"><FiUserCheck className="text-primary-300" />{employee.role}</div>
+                <div className="flex items-center gap-1"><span className="font-bold">الفرع:</span> {employee.branch_name}</div>
+                <div className="flex items-center gap-1"><span className="font-bold">تاريخ الإنشاء:</span> {employee.created_at ? format(new Date(employee.created_at), "dd MMMM yyyy", { locale: ar }) : "-"}</div>
+              </div>
+              <div className="flex gap-2 justify-end mt-2">
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleEdit(); }}
+                  className="bg-blue-50 hover:bg-blue-100 text-blue-700 p-2 rounded-full shadow transition border border-blue-100"
+                  title="تعديل"
+                >
+                  <FiEdit2 size={18} />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleResetPassword(employee); }}
+                  className="bg-green-50 hover:bg-green-100 text-green-700 p-2 rounded-full shadow transition border border-green-100"
+                  title="تغيير كلمة المرور"
+                >
+                  <FiKey size={18} />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setSelectedId(employee.id); setDeleteConfirmOpen(true); }}
+                  className="bg-red-50 hover:bg-red-100 text-red-700 p-2 rounded-full shadow transition border border-red-100"
+                  title="حذف"
+                >
+                  <FiTrash2 size={18} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
 
         {/* النوافذ المنبثقة */}
         {showModal && (
-      <EmployeeFormModal
-        open={showModal}
+          <EmployeeFormModal
+            open={showModal}
             onClose={() => setShowModal(false)}
-        onSubmit={handleSubmit}
+            onSubmit={handleSubmit}
             initialData={editData ? {
               id: editData.id,
               username: editData.username,
@@ -394,18 +429,18 @@ export default function EmployeesPage() {
 
         {deleteConfirmOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg">
-              <h3 className="text-lg font-bold mb-4">تأكيد الحذف</h3>
-              <p className="mb-4">هل أنت متأكد من حذف هذا الموظف؟</p>
-              <div className="flex justify-end gap-4">
+            <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-xs w-full text-center">
+              <h3 className="text-lg font-bold mb-4 text-red-700">تأكيد الحذف</h3>
+              <p className="mb-6 text-gray-700">هل أنت متأكد من حذف هذا الموظف؟ لا يمكن التراجع عن هذا الإجراء.</p>
+              <div className="flex justify-center gap-4">
                 <button
-                  className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                  className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 font-semibold"
                   onClick={() => setDeleteConfirmOpen(false)}
                 >
                   إلغاء
                 </button>
                 <button
-                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 font-semibold shadow"
                   onClick={handleDelete}
                 >
                   حذف
@@ -426,7 +461,7 @@ export default function EmployeesPage() {
             onSuccess={handlePasswordResetSuccess}
           />
         )}
-        </div>
+      </div>
     </div>
   );
 } 

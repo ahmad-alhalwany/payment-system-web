@@ -6,19 +6,8 @@ import ModernButton from "@/components/ui/ModernButton";
 import TransactionStatusModal from "@/components/transaction/TransactionStatusModal";
 import TransactionReceiptModal from "@/components/transaction/TransactionReceiptModal";
 import axiosInstance from "@/app/api/axios";
-
-interface Transaction {
-  id: string;
-  sender: string;
-  receiver: string;
-  amount: number;
-  currency: string;
-  date: string;
-  status: string;
-  sendingBranch: string;
-  receivingBranch: string;
-  employee: string;
-}
+import { Transaction } from "@/app/api/transactions";
+import { FiInfo, FiRefreshCw, FiPrinter, FiCheckCircle, FiXCircle, FiClock } from "react-icons/fi";
 
 interface Branch {
   id: number;
@@ -83,9 +72,9 @@ export default function TransactionsPage() {
         Array.isArray(transactionsRes.data.items)
           ? transactionsRes.data.items.map((tr: any) => ({
               ...tr,
-              sendingBranch: tr.sending_branch_name || tr.sendingBranch || "",
-              receivingBranch: tr.destination_branch_name || tr.receivingBranch || "",
-              employee: tr.employee_name || tr.employee || ""
+              sending_branch_name: tr.sending_branch_name || "",
+              destination_branch_name: tr.destination_branch_name || "",
+              employee_name: tr.employee_name || ""
             }))
           : []
       );
@@ -111,7 +100,7 @@ export default function TransactionsPage() {
     return found ? found.value : label;
   };
   const filtered = transactions.filter(tr => {
-    const matchesBranch = branchFilter === "الكل" || tr.sendingBranch === branchFilter || tr.receivingBranch === branchFilter;
+    const matchesBranch = branchFilter === "الكل" || tr.sending_branch_name === branchFilter || tr.destination_branch_name === branchFilter;
     // إذا كان الفلتر "الكل"، اعرض الكل، وإلا حول الفلتر للقيمة الإنجليزية
     const matchesStatus = statusFilter === "الكل" || tr.status === getStatusEn(statusFilter);
     return matchesBranch && matchesStatus;
@@ -159,6 +148,9 @@ export default function TransactionsPage() {
     setSelectedId(null);
   };
 
+  // Helper to display branch name
+  const displayBranch = (name: string | null | undefined) => !name || name === '-' ? 'الفرع الرئيسي' : name;
+
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-4 text-primary-800">إدارة التحويلات</h1>
@@ -166,7 +158,7 @@ export default function TransactionsPage() {
         <select
           value={branchFilter}
           onChange={e => setBranchFilter(e.target.value)}
-          className="input-field md:w-48"
+          className="rounded-xl border border-primary-200 bg-primary-50 px-4 py-2 text-primary-700 focus:ring-2 focus:ring-primary-300 md:w-48 shadow-sm"
           disabled={loading}
         >
           <option value="الكل">الكل</option>
@@ -175,40 +167,44 @@ export default function TransactionsPage() {
         <select
           value={statusFilter}
           onChange={e => setStatusFilter(e.target.value)}
-          className="input-field md:w-48"
+          className="rounded-xl border border-primary-200 bg-primary-50 px-4 py-2 text-primary-700 focus:ring-2 focus:ring-primary-300 md:w-48 shadow-sm"
           disabled={loading}
         >
           {statuses.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
-        <div className="flex gap-2">
-          <ModernButton 
-            color="#2ecc71" 
+        <div className="flex gap-2 flex-wrap">
+          <button 
             onClick={handleDetails} 
             disabled={!selectedId || loading}
+            className="bg-blue-50 hover:bg-blue-100 text-blue-700 p-2 rounded-full shadow transition border border-blue-100 flex items-center gap-1 disabled:opacity-50"
+            title="تفاصيل"
           >
-            تفاصيل
-          </ModernButton>
-          <ModernButton 
-            color="#3498db" 
+            <FiInfo /> <span className="hidden sm:inline">تفاصيل</span>
+          </button>
+          <button 
             onClick={handleUpdateStatus} 
             disabled={!selectedId || loading}
+            className="bg-green-50 hover:bg-green-100 text-green-700 p-2 rounded-full shadow transition border border-green-100 flex items-center gap-1 disabled:opacity-50"
+            title="تحديث الحالة"
           >
-            تحديث الحالة
-          </ModernButton>
-          <ModernButton 
-            color="#e74c3c" 
+            <FiRefreshCw /> <span className="hidden sm:inline">تحديث الحالة</span>
+          </button>
+          <button 
             onClick={handlePrint} 
             disabled={!selectedId || loading}
+            className="bg-purple-50 hover:bg-purple-100 text-purple-700 p-2 rounded-full shadow transition border border-purple-100 flex items-center gap-1 disabled:opacity-50"
+            title="طباعة الإيصال"
           >
-            طباعة الإيصال
-          </ModernButton>
-          <ModernButton 
-            color="#f59e42" 
+            <FiPrinter /> <span className="hidden sm:inline">طباعة الإيصال</span>
+          </button>
+          <button 
             onClick={handleRefresh}
             disabled={loading}
+            className="bg-orange-50 hover:bg-orange-100 text-orange-700 p-2 rounded-full shadow transition border border-orange-100 flex items-center gap-1 disabled:opacity-50"
+            title="تحديث"
           >
-            {loading ? "جاري التحديث..." : "تحديث"}
-          </ModernButton>
+            <FiRefreshCw /> <span className="hidden sm:inline">تحديث</span>
+          </button>
         </div>
       </div>
       {loading ? (
@@ -222,20 +218,20 @@ export default function TransactionsPage() {
         </div>
       ) : (
         <>
-        <div className="overflow-x-auto rounded-xl shadow bg-white">
-          <table className="min-w-full text-center">
+        <div className="overflow-x-auto rounded-2xl shadow-lg border border-primary-100 bg-white">
+          <table className="min-w-full text-center rounded-2xl overflow-hidden">
             <thead className="bg-primary-50">
               <tr>
-                <th className="px-4 py-3">رقم التحويل</th>
-                <th className="px-4 py-3">المرسل</th>
-                <th className="px-4 py-3">المستلم</th>
-                <th className="px-4 py-3">المبلغ</th>
-                <th className="px-4 py-3">العملة</th>
-                <th className="px-4 py-3">التاريخ</th>
-                <th className="px-4 py-3">الحالة</th>
-                <th className="px-4 py-3">الفرع المرسل</th>
-                <th className="px-4 py-3">الفرع المستلم</th>
-                <th className="px-4 py-3">اسم الموظف</th>
+                <th className="px-4 py-3 text-primary-700 font-bold">رقم التحويل</th>
+                <th className="px-4 py-3 text-primary-700 font-bold">المرسل</th>
+                <th className="px-4 py-3 text-primary-700 font-bold">المستلم</th>
+                <th className="px-4 py-3 text-primary-700 font-bold">المبلغ</th>
+                <th className="px-4 py-3 text-primary-700 font-bold">العملة</th>
+                <th className="px-4 py-3 text-primary-700 font-bold">التاريخ</th>
+                <th className="px-4 py-3 text-primary-700 font-bold">الحالة</th>
+                <th className="px-4 py-3 text-primary-700 font-bold">الفرع المرسل</th>
+                <th className="px-4 py-3 text-primary-700 font-bold">الفرع المستلم</th>
+                <th className="px-4 py-3 text-primary-700 font-bold">اسم الموظف</th>
               </tr>
             </thead>
             <tbody>
@@ -245,29 +241,32 @@ export default function TransactionsPage() {
                 filtered.map(tr => (
                   <tr
                     key={tr.id}
-                    className={`border-b hover:bg-primary-50 cursor-pointer transition-colors ${
-                      selectedId === tr.id ? "bg-primary-100" : ""
+                    className={`border-b cursor-pointer transition-all duration-200 hover:bg-primary-50/80 ${
+                      selectedId === tr.id ? "bg-primary-100 shadow-md scale-[1.01] border-r-4 border-primary-400" : ""
                     }`}
                     onClick={() => setSelectedId(tr.id)}
                   >
-                    <td className="px-4 py-2">{tr.id}</td>
-                    <td className="px-4 py-2">{tr.sender}</td>
-                    <td className="px-4 py-2">{tr.receiver}</td>
-                    <td className="px-4 py-2">{tr.amount.toLocaleString()}</td>
-                    <td className="px-4 py-2">{tr.currency}</td>
-                    <td className="px-4 py-2">{tr.date}</td>
+                    <td className="px-4 py-2 font-bold text-primary-800">{tr.id}</td>
+                    <td className="px-4 py-2 text-primary-700">{tr.sender}</td>
+                    <td className="px-4 py-2 text-primary-700">{tr.receiver}</td>
+                    <td className="px-4 py-2 text-primary-900 font-bold">{tr.amount.toLocaleString()}</td>
+                    <td className="px-4 py-2 text-primary-700">{tr.currency}</td>
+                    <td className="px-4 py-2 text-primary-700">{tr.date}</td>
                     <td className="px-4 py-2">
-                      <span className={`px-3 py-1 rounded-full text-xs ${
-                        tr.status === "completed" ? "bg-green-100 text-green-700" :
-                        tr.status === "cancelled" || tr.status === "rejected" ? "bg-red-100 text-red-700" :
-                        "bg-yellow-100 text-yellow-700"
-                      }`}>
+                      <span className={`px-3 py-1 inline-flex items-center gap-1 rounded-full text-xs font-semibold shadow-sm
+                        ${tr.status === "completed" ? "bg-green-100 text-green-700 border border-green-200" :
+                        tr.status === "cancelled" || tr.status === "rejected" ? "bg-red-100 text-red-700 border border-red-200" :
+                        "bg-yellow-100 text-yellow-700 border border-yellow-200"}
+                      `}>
+                        {tr.status === "completed" ? <FiCheckCircle className="text-green-400" /> :
+                         tr.status === "cancelled" || tr.status === "rejected" ? <FiXCircle className="text-red-400" /> :
+                         <FiClock className="text-yellow-400" />}
                         {statusMap[tr.status] || tr.status}
                       </span>
                     </td>
-                    <td className="px-4 py-2">{tr.sendingBranch}</td>
-                    <td className="px-4 py-2">{tr.receivingBranch}</td>
-                    <td className="px-4 py-2">{tr.employee}</td>
+                    <td className="px-4 py-2 text-primary-700">{displayBranch(tr.sending_branch_name)}</td>
+                    <td className="px-4 py-2 text-primary-700">{displayBranch(tr.destination_branch_name)}</td>
+                    <td className="px-4 py-2 text-primary-700">{tr.employee_name}</td>
                   </tr>
                 ))
               )}
@@ -275,15 +274,15 @@ export default function TransactionsPage() {
           </table>
         </div>
         {/* Pagination */}
-        <div className="flex justify-between items-center mt-4">
+        <div className="flex justify-between items-center mt-4 flex-wrap gap-2">
           <div className="text-sm text-gray-700">
             الصفحة {currentPage} من {totalPages}
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <button
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="px-3 py-1 rounded bg-primary-100 text-primary-700 disabled:opacity-50"
+              className="w-9 h-9 rounded-full flex items-center justify-center font-bold border transition bg-primary-50 text-primary-700 border-primary-200 hover:bg-primary-100 disabled:opacity-50"
             >
               السابق
             </button>
@@ -291,7 +290,9 @@ export default function TransactionsPage() {
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
-                className={`px-3 py-1 rounded ${page === currentPage ? 'bg-primary-600 text-white' : 'bg-primary-100 text-primary-700'} font-bold`}
+                className={`w-9 h-9 rounded-full flex items-center justify-center font-bold border transition
+                  ${page === currentPage ? 'bg-primary-600 text-white border-primary-600 shadow' : 'bg-primary-50 text-primary-700 border-primary-200 hover:bg-primary-100'}`}
+                aria-current={page === currentPage ? "page" : undefined}
               >
                 {page}
               </button>
@@ -299,7 +300,7 @@ export default function TransactionsPage() {
             <button
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="px-3 py-1 rounded bg-primary-100 text-primary-700 disabled:opacity-50"
+              className="w-9 h-9 rounded-full flex items-center justify-center font-bold border transition bg-primary-50 text-primary-700 border-primary-200 hover:bg-primary-100 disabled:opacity-50"
             >
               التالي
             </button>
@@ -320,9 +321,10 @@ export default function TransactionsPage() {
         statusOptions={statusOptions}
       />
       <TransactionReceiptModal
-        open={showReceiptModal}
+        isOpen={showReceiptModal}
         onClose={() => setShowReceiptModal(false)}
-        transaction={transactions.find(tr => tr.id === selectedId)}
+        transaction={transactions.find(t => t.id === selectedId)}
+        onPrint={() => window.print()}
       />
       {success && (
         <div className="fixed bottom-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">

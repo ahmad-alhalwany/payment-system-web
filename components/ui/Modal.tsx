@@ -38,10 +38,10 @@ export default function Modal({ open, onClose, title, children }: ModalProps) {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 text-right align-middle shadow-xl transition-all">
+              <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-3xl bg-white/95 p-8 text-right align-middle shadow-2xl border border-primary-100 transition-all" style={{ boxShadow: '0 8px 32px #1976d220' }}>
                 <Dialog.Title
                   as="h3"
-                  className="text-lg font-medium leading-6 text-gray-900 mb-4"
+                  className="text-2xl font-extrabold leading-6 text-primary-800 mb-6 text-center tracking-wide drop-shadow-sm"
                 >
                   {title}
                 </Dialog.Title>

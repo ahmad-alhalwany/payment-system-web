@@ -33,91 +33,37 @@ export default function SystemSettingsForm({ initialData, onSave }: SystemSettin
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6 mb-6">
-      <h2 className="text-xl font-bold mb-4 text-primary-700">إعدادات النظام</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="bg-white/90 rounded-2xl shadow-xl p-6 mb-8 border border-primary-100">
+      <h2 className="text-2xl font-bold mb-6 text-primary-700 drop-shadow">إعدادات النظام</h2>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              اسم النظام
-            </label>
-            <input
-              type="text"
-              name="systemName"
-              value={settings.systemName}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-              required
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-1">اسم النظام</label>
+            <input type="text" name="systemName" value={settings.systemName} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-200" required />
           </div>
-
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              اسم الشركة
-            </label>
-            <input
-              type="text"
-              name="companyName"
-              value={settings.companyName}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-              required
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-1">اسم الشركة</label>
+            <input type="text" name="companyName" value={settings.companyName} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-200" required />
           </div>
-
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              البريد الإلكتروني للمسؤول
-            </label>
-            <input
-              type="email"
-              name="adminEmail"
-              value={settings.adminEmail}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-              required
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-1">البريد الإلكتروني للمسؤول</label>
+            <input type="email" name="adminEmail" value={settings.adminEmail} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-200" required />
           </div>
-
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              العملة الافتراضية
-            </label>
-            <select
-              name="defaultCurrency"
-              value={settings.defaultCurrency}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-            >
+            <label className="block text-sm font-medium text-gray-700 mb-1">العملة الافتراضية</label>
+            <select name="defaultCurrency" value={settings.defaultCurrency} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-200">
               {CURRENCIES.map(currency => (
-                <option key={currency.value} value={currency.value}>
-                  {currency.label}
-                </option>
+                <option key={currency.value} value={currency.value}>{currency.label}</option>
               ))}
             </select>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              رقم الهاتف الرئيسي للشركة
-            </label>
-            <input
-              type="tel"
-              name="mainPhone"
-              value={settings.mainPhone}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-              required
-              placeholder="مثال: 09xxxxxxxx"
-            />
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">رقم الهاتف الرئيسي للشركة</label>
+            <input type="tel" name="mainPhone" value={settings.mainPhone} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-200" required placeholder="مثال: 09xxxxxxxx" />
           </div>
         </div>
-
         <div className="flex justify-end">
-          <button
-            type="submit"
-            className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-          >
+          <button type="submit" className="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition font-bold shadow focus:outline-none focus:ring-2 focus:ring-primary-200 focus:ring-offset-2">
             حفظ الإعدادات
           </button>
         </div>

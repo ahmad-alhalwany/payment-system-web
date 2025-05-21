@@ -104,27 +104,28 @@ export default function EmployeeDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-primary-50 p-6">
+    <div className="min-h-screen bg-gradient-to-tr from-primary-50 via-blue-50 to-white p-4 md:p-8">
       <div className="max-w-5xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-primary-800 text-center">لوحة موظف التحويلات</h1>
+        <h1 className="text-4xl md:text-5xl font-extrabold mb-10 text-primary-800 text-center drop-shadow-sm tracking-wide">لوحة موظف التحويلات</h1>
         {/* التبويبات */}
-        <div className="flex gap-2 mb-8 justify-center">
+        <div className="flex flex-wrap gap-2 mb-10 justify-center">
           {tabs.map((tab) => (
             <button
               key={tab.key}
-              className={`px-6 py-2 rounded-t-lg font-semibold transition border-b-2 ${
-                activeTab === tab.key
-                  ? "bg-white border-primary-500 text-primary-800 shadow"
-                  : "bg-primary-100 border-transparent text-primary-500 hover:bg-primary-200"
-              }`}
+              className={`px-7 py-2 md:px-10 md:py-3 rounded-t-2xl font-bold text-lg transition border-b-4 focus:outline-none shadow-sm
+                ${activeTab === tab.key
+                  ? "bg-white border-primary-500 text-primary-800 shadow-lg scale-105 z-10"
+                  : "bg-primary-100 border-transparent text-primary-500 hover:bg-primary-200 hover:scale-105"}
+              `}
               onClick={() => setActiveTab(tab.key)}
+              style={{ minWidth: 120 }}
             >
               {tab.label}
             </button>
           ))}
         </div>
         {/* محتوى التبويب */}
-        <div className="bg-white rounded-b-xl shadow p-8 min-h-[300px]">
+        <div className="bg-white/90 rounded-3xl shadow-2xl p-4 md:p-10 border border-primary-100 backdrop-blur-md min-h-[350px] md:min-h-[420px]" style={{ boxShadow: '0 8px 32px #1976d220' }}>
           {activeTab === "new" && (
             <NewTransferForm 
               onSubmit={handleTransferSubmit}

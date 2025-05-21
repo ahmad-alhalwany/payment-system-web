@@ -11,6 +11,7 @@ import { useAuth } from "@/app/hooks/useAuth";
 import axiosInstance from "@/app/api/axios";
 import { Transaction } from "@/app/api/transactions";
 import { useTransactions } from "../hooks/useTransactions";
+import { Pagination } from '@mui/material';
 
 interface BranchInfo {
   id: number;
@@ -238,58 +239,70 @@ export default function BranchManagerDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-primary-50">
-      <div className="container mx-auto p-8">
-        <h1 className="text-3xl font-bold mb-8 text-primary-800 text-center">لوحة تحكم مدير الفرع</h1>
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #e3f0ff 0%, #fceabb 100%)' }}>
+      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '32px 8px' }}>
+        <h1 style={{ fontSize: 32, fontWeight: 900, marginBottom: 32, color: '#1976d2', textAlign: 'center', letterSpacing: 1, textShadow: '0 1px 2px #0001' }}>
+          لوحة تحكم مدير الفرع
+        </h1>
         {/* معلومات الفرع */}
-        <div className="bg-white rounded-xl shadow p-6 mb-8 flex flex-col md:flex-row gap-8 items-center justify-between">
+        <div style={{ background: 'rgba(255,255,255,0.97)', borderRadius: 24, boxShadow: '0 4px 24px #0001', padding: 32, marginBottom: 32, display: 'flex', flexDirection: 'column', gap: 24, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
           <div>
-            <div className="text-xl font-bold text-primary-900 mb-2">{branchInfo?.name}</div>
-            <div className="text-gray-600 mb-1">الموقع: {branchInfo?.location}</div>
-            <div className="text-gray-600">المحافظة: {branchInfo?.governorate}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#1976d2', marginBottom: 8 }}>{branchInfo?.name}</div>
+            <div style={{ color: '#555', marginBottom: 4 }}>الموقع: {branchInfo?.location}</div>
+            <div style={{ color: '#555' }}>المحافظة: {branchInfo?.governorate}</div>
           </div>
-          <div className="flex gap-4">
+          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
             {/* زر إضافة موظف */}
             <button
               type="button"
-              className="flex items-center gap-2 px-5 py-2 rounded-lg text-white font-semibold shadow transition hover:scale-105 bg-green-500"
+              style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 28px', borderRadius: 99, color: '#fff', fontWeight: 700, fontSize: 17, boxShadow: '0 2px 8px #43a04722', background: '#43a047', border: 'none', cursor: 'pointer', transition: 'transform 0.15s', outline: 'none' }}
               onClick={() => setOpenAdd(true)}
+              onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'}
+              onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
             >
-              <span className="text-xl">➕</span>
+              <span style={{ fontSize: 22 }}>➕</span>
               إضافة موظف
             </button>
             {/* زر تحويل جديد */}
-            <Link href="/money-transfer" className="flex items-center gap-2 px-5 py-2 rounded-lg text-white font-semibold shadow transition hover:scale-105 bg-blue-500">
-              <span className="text-xl">🔄</span>
+            <Link href="/money-transfer" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 28px', borderRadius: 99, color: '#fff', fontWeight: 700, fontSize: 17, boxShadow: '0 2px 8px #1976d220', background: '#1976d2', border: 'none', textDecoration: 'none', transition: 'transform 0.15s' }}
+              onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'}
+              onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              <span style={{ fontSize: 22 }}>🔄</span>
               تحويل جديد
             </Link>
             {/* زر بحث عن مستخدم */}
             <button
               type="button"
-              className="flex items-center gap-2 px-5 py-2 rounded-lg text-white font-semibold shadow transition hover:scale-105 bg-orange-500"
+              style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 28px', borderRadius: 99, color: '#fff', fontWeight: 700, fontSize: 17, boxShadow: '0 2px 8px #ffa72622', background: '#ffa726', border: 'none', cursor: 'pointer', transition: 'transform 0.15s', outline: 'none' }}
               onClick={() => setShowUserSearch(true)}
+              onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'}
+              onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
             >
-              <span className="text-xl">🔍</span>
+              <span style={{ fontSize: 22 }}>🔍</span>
               بحث عن مستخدم
             </button>
           </div>
         </div>
         {/* إحصائيات */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24, marginBottom: 40 }}>
           {stats.map((stat, idx) => (
-            <div key={idx} className={`rounded-xl shadow p-6 flex flex-col items-center ${stat.color}`}>
-              <span className="text-3xl mb-2">{stat.icon}</span>
-              <span className="text-2xl font-bold text-primary-900">{stat.value}</span>
-              <span className="text-gray-600 mt-2">{stat.label}</span>
+            <div key={idx} style={{ borderRadius: 20, boxShadow: '0 2px 12px #1976d210', background: '#f5faff', padding: 32, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <span style={{ fontSize: 32, marginBottom: 8 }}>{stat.icon}</span>
+              <span style={{ fontSize: 26, fontWeight: 800, color: '#1976d2' }}>{stat.value}</span>
+              <span style={{ color: '#555', marginTop: 8 }}>{stat.label}</span>
             </div>
           ))}
         </div>
         {/* روابط الصفحات الفرعية */}
-        <div className="bg-white rounded-xl shadow p-6">
-          <h2 className="text-xl font-bold mb-4 text-primary-800">الصفحات الفرعية</h2>
-          <div className="flex flex-wrap gap-4">
+        <div style={{ background: 'rgba(255,255,255,0.97)', borderRadius: 20, boxShadow: '0 2px 12px #1976d210', padding: 32, marginBottom: 32 }}>
+          <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 18, color: '#1976d2' }}>الصفحات الفرعية</h2>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
             {links.map((link, idx) => (
-              <Link key={idx} href={link.href} className="px-6 py-3 rounded-lg bg-primary-100 text-primary-800 font-semibold shadow hover:bg-primary-200 transition">
+              <Link key={idx} href={link.href} style={{ padding: '12px 32px', borderRadius: 99, background: '#e3f2fd', color: '#1976d2', fontWeight: 700, fontSize: 16, boxShadow: '0 2px 8px #1976d210', textDecoration: 'none', transition: 'background 0.2s' }}
+                onMouseOver={e => e.currentTarget.style.background = '#b2ebf2'}
+                onMouseOut={e => e.currentTarget.style.background = '#e3f2fd'}
+              >
                 {link.label}
               </Link>
             ))}
@@ -311,30 +324,26 @@ export default function BranchManagerDashboard() {
           onAdd={handleAddEmployee} 
           branchName={branchInfo?.name || ""}
         />
-        <div className="bg-white rounded-lg shadow-lg p-6 mt-8">
-          <div className="flex gap-4 mb-6">
+        <div style={{ background: 'rgba(255,255,255,0.97)', borderRadius: 20, boxShadow: '0 2px 12px #1976d210', padding: 32, marginTop: 40 }}>
+          <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
             <button
-              className={`px-4 py-2 rounded-lg ${
-                activeTab === "transfers" ? "bg-primary-600 text-white" : "bg-gray-100"
-              }`}
-              onClick={() => setActiveTab("transfers")}
+              style={{ padding: '10px 28px', borderRadius: 99, fontWeight: 700, fontSize: 16, background: activeTab === 'transfers' ? '#1976d2' : '#f5faff', color: activeTab === 'transfers' ? '#fff' : '#1976d2', border: 'none', boxShadow: activeTab === 'transfers' ? '0 2px 8px #1976d220' : 'none', transition: 'all 0.15s', cursor: 'pointer' }}
+              onClick={() => setActiveTab('transfers')}
             >
               التحويلات
             </button>
             <button
-              className={`px-4 py-2 rounded-lg ${
-                activeTab === "reports" ? "bg-primary-600 text-white" : "bg-gray-100"
-              }`}
-              onClick={() => setActiveTab("reports")}
+              style={{ padding: '10px 28px', borderRadius: 99, fontWeight: 700, fontSize: 16, background: activeTab === 'reports' ? '#1976d2' : '#f5faff', color: activeTab === 'reports' ? '#fff' : '#1976d2', border: 'none', boxShadow: activeTab === 'reports' ? '0 2px 8px #1976d220' : 'none', transition: 'all 0.15s', cursor: 'pointer' }}
+              onClick={() => setActiveTab('reports')}
             >
               التقارير
             </button>
           </div>
 
           {activeTab === "transfers" && (
-            <div className="space-y-8">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 48 }}>
               <div>
-                <h2 className="text-xl font-bold mb-4">التحويلات الصادرة</h2>
+                <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 16, color: '#1976d2' }}>التحويلات الصادرة</h2>
                 <OutgoingTransfersTable
                   transfers={outgoingTransfers}
                   onStatusChange={async (id, status) => {
@@ -347,10 +356,25 @@ export default function BranchManagerDashboard() {
                   onPageChange={setOutgoingPage}
                   loading={outgoingLoading}
                 />
+                {outgoingTotalPages > 1 && (
+                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: 24 }}>
+                    <Pagination
+                      count={outgoingTotalPages}
+                      page={outgoingPage}
+                      onChange={(_, value) => setOutgoingPage(value)}
+                      color="primary"
+                      shape="rounded"
+                      size="large"
+                      showFirstButton
+                      showLastButton
+                      sx={{ direction: 'ltr' }}
+                    />
+                  </div>
+                )}
               </div>
 
               <div>
-                <h2 className="text-xl font-bold mb-4">التحويلات الواردة</h2>
+                <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 16, color: '#1976d2' }}>التحويلات الواردة</h2>
                 <IncomingTransfersTable
                   transfers={incomingTransfers}
                   onStatusChange={async (id, status) => {
@@ -363,32 +387,47 @@ export default function BranchManagerDashboard() {
                   onPageChange={setIncomingPage}
                   loading={incomingLoading}
                 />
+                {incomingTotalPages > 1 && (
+                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: 24 }}>
+                    <Pagination
+                      count={incomingTotalPages}
+                      page={incomingPage}
+                      onChange={(_, value) => setIncomingPage(value)}
+                      color="primary"
+                      shape="rounded"
+                      size="large"
+                      showFirstButton
+                      showLastButton
+                      sx={{ direction: 'ltr' }}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           )}
 
           {activeTab === "reports" && (
             <div>
-              <h2 className="text-xl font-bold mb-4">التقارير</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 16, color: '#1976d2' }}>التقارير</h2>
               {/* جلب وعرض تقارير حقيقية من الـ API */}
               {/* مثال: عرض إحصائيات التحويلات */}
               {transactionStats && (
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
-                  <div className="rounded-xl shadow p-6 flex flex-col items-center bg-blue-100">
-                    <span className="text-2xl font-bold text-primary-900">{transactionStats.total}</span>
-                    <span className="text-gray-600 mt-2">إجمالي التحويلات</span>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24, marginBottom: 40 }}>
+                  <div style={{ borderRadius: 20, boxShadow: '0 2px 12px #1976d210', background: '#e3f2fd', padding: 32, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <span style={{ fontSize: 24, fontWeight: 800, color: '#1976d2' }}>{transactionStats.total}</span>
+                    <span style={{ color: '#555', marginTop: 8 }}>إجمالي التحويلات</span>
                   </div>
-                  <div className="rounded-xl shadow p-6 flex flex-col items-center bg-green-100">
-                    <span className="text-2xl font-bold text-primary-900">{transactionStats.completed}</span>
-                    <span className="text-gray-600 mt-2">المكتملة</span>
+                  <div style={{ borderRadius: 20, boxShadow: '0 2px 12px #43a04722', background: '#e8f5e9', padding: 32, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <span style={{ fontSize: 24, fontWeight: 800, color: '#388e3c' }}>{transactionStats.completed}</span>
+                    <span style={{ color: '#555', marginTop: 8 }}>المكتملة</span>
                   </div>
-                  <div className="rounded-xl shadow p-6 flex flex-col items-center bg-yellow-100">
-                    <span className="text-2xl font-bold text-primary-900">{transactionStats.pending}</span>
-                    <span className="text-gray-600 mt-2">قيد الانتظار</span>
+                  <div style={{ borderRadius: 20, boxShadow: '0 2px 12px #fbc02d22', background: '#fffde7', padding: 32, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <span style={{ fontSize: 24, fontWeight: 800, color: '#fbc02d' }}>{transactionStats.pending}</span>
+                    <span style={{ color: '#555', marginTop: 8 }}>قيد الانتظار</span>
                   </div>
-                  <div className="rounded-xl shadow p-6 flex flex-col items-center bg-red-100">
-                    <span className="text-2xl font-bold text-primary-900">{transactionStats.cancelled}</span>
-                    <span className="text-gray-600 mt-2">الملغاة</span>
+                  <div style={{ borderRadius: 20, boxShadow: '0 2px 12px #e5737322', background: '#ffebee', padding: 32, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <span style={{ fontSize: 24, fontWeight: 800, color: '#d32f2f' }}>{transactionStats.cancelled}</span>
+                    <span style={{ color: '#555', marginTop: 8 }}>الملغاة</span>
                   </div>
                 </div>
               )}
@@ -397,7 +436,7 @@ export default function BranchManagerDashboard() {
         </div>
 
         {successMsg && (
-          <div className="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg">
+          <div style={{ position: 'fixed', bottom: 32, right: 32, background: '#43a047', color: '#fff', padding: '18px 36px', borderRadius: 99, fontWeight: 700, fontSize: 18, boxShadow: '0 2px 12px #43a04744', zIndex: 9999, transition: 'all 0.3s' }}>
             {successMsg}
           </div>
         )}

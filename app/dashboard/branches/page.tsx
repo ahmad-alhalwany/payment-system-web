@@ -9,6 +9,7 @@ import BranchTaxModal from "@/components/branch/BranchTaxModal";
 import axiosInstance from "@/app/api/axios";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
+import { FiCheckCircle, FiXCircle } from "react-icons/fi";
 
 interface Branch {
   id: number;
@@ -224,7 +225,7 @@ export default function BranchesPage() {
       <div className="bg-white rounded-lg shadow-lg p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">إدارة الفروع</h1>
-          <div className="flex gap-4">
+          <div className="flex gap-4 flex-wrap">
         <ModernButton color="#2ecc71" onClick={() => setShowAddModal(true)}>
           إضافة فرع
         </ModernButton>
@@ -251,14 +252,14 @@ export default function BranchesPage() {
               placeholder="بحث..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+              className="w-full rounded-xl border border-primary-200 bg-primary-50 px-4 py-2 text-primary-700 focus:ring-2 focus:ring-primary-300 shadow-sm"
             />
           </div>
           <div>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+              className="w-full rounded-xl border border-primary-200 bg-primary-50 px-4 py-2 text-primary-700 focus:ring-2 focus:ring-primary-300 shadow-sm"
             >
               <option value="all">جميع الحالات</option>
               <option value="active">نشط</option>
@@ -268,58 +269,41 @@ export default function BranchesPage() {
       </div>
 
       {/* جدول الفروع */}
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+        <div className="overflow-x-auto rounded-2xl shadow-lg border border-primary-100 bg-white">
+          <table className="min-w-full rounded-2xl overflow-hidden">
+            <thead className="bg-primary-50">
             <tr>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onClick={() => handleSort("name")}>
-                  رقم الفرع {sortField === "name" && (sortOrder === "asc" ? "↑" : "↓")}
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onClick={() => handleSort("name")}>
-                  اسم الفرع {sortField === "name" && (sortOrder === "asc" ? "↑" : "↓")}
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onClick={() => handleSort("location")}>
-                  الموقع {sortField === "location" && (sortOrder === "asc" ? "↑" : "↓")}
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onClick={() => handleSort("governorate")}>
-                  المحافظة {sortField === "governorate" && (sortOrder === "asc" ? "↑" : "↓")}
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onClick={() => handleSort("employee_count")}>
-                  عدد الموظفين {sortField === "employee_count" && (sortOrder === "asc" ? "↑" : "↓")}
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onClick={() => handleSort("allocated_amount_syp")}>
-                  الرصيد (ل.س) {sortField === "allocated_amount_syp" && (sortOrder === "asc" ? "↑" : "↓")}
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onClick={() => handleSort("allocated_amount_usd")}>
-                  الرصيد ($) {sortField === "allocated_amount_usd" && (sortOrder === "asc" ? "↑" : "↓")}
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onClick={() => handleSort("tax_rate")}>
-                  نسبة الضريبة {sortField === "tax_rate" && (sortOrder === "asc" ? "↑" : "↓")}
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  الحالة
-                </th>
+                <th className="px-6 py-3 text-right text-xs font-bold text-primary-700 uppercase tracking-wider cursor-pointer" onClick={() => handleSort("name")}>رقم الفرع {sortField === "name" && (sortOrder === "asc" ? "↑" : "↓")}</th>
+                <th className="px-6 py-3 text-right text-xs font-bold text-primary-700 uppercase tracking-wider cursor-pointer" onClick={() => handleSort("name")}>اسم الفرع {sortField === "name" && (sortOrder === "asc" ? "↑" : "↓")}</th>
+                <th className="px-6 py-3 text-right text-xs font-bold text-primary-700 uppercase tracking-wider cursor-pointer" onClick={() => handleSort("location")}>الموقع {sortField === "location" && (sortOrder === "asc" ? "↑" : "↓")}</th>
+                <th className="px-6 py-3 text-right text-xs font-bold text-primary-700 uppercase tracking-wider cursor-pointer" onClick={() => handleSort("governorate")}>المحافظة {sortField === "governorate" && (sortOrder === "asc" ? "↑" : "↓")}</th>
+                <th className="px-6 py-3 text-right text-xs font-bold text-primary-700 uppercase tracking-wider cursor-pointer" onClick={() => handleSort("employee_count")}>عدد الموظفين {sortField === "employee_count" && (sortOrder === "asc" ? "↑" : "↓")}</th>
+                <th className="px-6 py-3 text-right text-xs font-bold text-primary-700 uppercase tracking-wider cursor-pointer" onClick={() => handleSort("allocated_amount_syp")}>الرصيد (ل.س) {sortField === "allocated_amount_syp" && (sortOrder === "asc" ? "↑" : "↓")}</th>
+                <th className="px-6 py-3 text-right text-xs font-bold text-primary-700 uppercase tracking-wider cursor-pointer" onClick={() => handleSort("allocated_amount_usd")}>الرصيد ($) {sortField === "allocated_amount_usd" && (sortOrder === "asc" ? "↑" : "↓")}</th>
+                <th className="px-6 py-3 text-right text-xs font-bold text-primary-700 uppercase tracking-wider cursor-pointer" onClick={() => handleSort("tax_rate")}>نسبة الضريبة {sortField === "tax_rate" && (sortOrder === "asc" ? "↑" : "↓")}</th>
+                <th className="px-6 py-3 text-right text-xs font-bold text-primary-700 uppercase tracking-wider">الحالة</th>
             </tr>
           </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white divide-y divide-primary-100">
               {Array.isArray(filteredBranches) && filteredBranches.map((branch) => (
               <tr
                 key={branch.id}
                 onClick={() => handleRowClick(branch.id)}
-                  className={`cursor-pointer hover:bg-gray-50 ${selectedBranchId === branch.id ? 'bg-primary-50' : ''}`}
+                  className={`cursor-pointer transition-all duration-200 hover:bg-primary-50/80 ${selectedBranchId === branch.id ? 'bg-primary-100 shadow-md scale-[1.01] border-r-4 border-primary-400' : ''}`}
               >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{branch.branch_id}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{branch.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{branch.location}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{branch.governorate}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{branch.employee_count}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{(branch.allocated_amount_syp ?? 0).toLocaleString()} ل.س</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{(branch.allocated_amount_usd ?? 0).toLocaleString()} $</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{branch.tax_rate}%</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-primary-900 font-bold">{branch.branch_id}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-primary-900">{branch.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-primary-900">{branch.location}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-primary-900">{branch.governorate}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-primary-900">{branch.employee_count}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-primary-900">{(branch.allocated_amount_syp ?? 0).toLocaleString()} ل.س</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-primary-900">{(branch.allocated_amount_usd ?? 0).toLocaleString()} $</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-primary-900">{branch.tax_rate}%</td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      branch.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
+                    <span className={`px-2 py-1 inline-flex items-center gap-1 text-xs leading-5 font-semibold rounded-full shadow-sm
+                      ${branch.status === 'active' ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'}
+                    `}>
+                      {branch.status === 'active' ? <FiCheckCircle className="text-green-400" /> : <FiXCircle className="text-red-400" />}
                       {branch.status === 'active' ? 'نشط' : 'غير نشط'}
                     </span>
                   </td>

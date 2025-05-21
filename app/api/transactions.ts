@@ -66,7 +66,7 @@ export const transactionsApi = {
 
   // Get transaction by ID
   getTransaction: async (id: string): Promise<Transaction> => {
-    const response = await axiosInstance.get(`${API_URL}/transactions/${id}`);
+    const response = await axiosInstance.get(`${API_URL}/transactions/${id}/`);
     return response.data;
   },
 

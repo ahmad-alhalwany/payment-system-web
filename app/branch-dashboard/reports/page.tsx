@@ -88,12 +88,18 @@ function exportToCSV(data: any[], columns: any[], filename: string) {
 }
 
 // دالة تحويل بيانات التحويلات لتوافق أعمدة الجدول
-const mapTransferRow = (tr: any) => ({
-  ...tr,
-  sending_branch: tr.sending_branch_name || tr.source_branch || tr.branch_name || "",
-  receiving_branch: tr.destination_branch_name || tr.destination_branch || "",
-  employee: tr.employee_name || "",
-});
+const mapTransferRow = (tr: any) => {
+  let sendingBranch = tr.sending_branch_name || tr.source_branch || tr.branch_name || "";
+  if (!sendingBranch || sendingBranch === "غير معروف") {
+    sendingBranch = "الفرع الرئيسي";
+  }
+  return {
+    ...tr,
+    sending_branch: sendingBranch,
+    receiving_branch: tr.destination_branch_name || tr.destination_branch || "",
+    employee: tr.employee_name || "",
+  };
+};
 
 // دالة تحويل بيانات الموظفين لتوافق أعمدة الجدول وتعرض النصوص بالعربي
 const mapEmployeeRow = (emp: any) => ({
@@ -194,202 +200,206 @@ export default function ReportsPage() {
   };
 
   return (
-    <Box p={4}>
-      <Tabs value={tab} onChange={(_, v) => setTab(v)}>
-        <Tab label="تقارير التحويلات" />
-        <Tab label="تقارير الموظفين" />
-      </Tabs>
-      <Box mt={3}>
-        {tab === 0 && (
-          <>
-            {/* فلاتر التحويلات */}
-            <Stack direction={{ xs: "column", md: "row" }} spacing={2} mb={3}>
-              <TextField
-                label="بحث برقم التحويل أو اسم المرسل/المستلم"
-                value={transferSearch}
-                onChange={e => setTransferSearch(e.target.value)}
-                sx={{ minWidth: 200 }}
-              />
-              <TextField
-                label="من تاريخ"
-                type="date"
-                InputLabelProps={{ shrink: true }}
-                value={dateFrom}
-                onChange={e => setDateFrom(e.target.value)}
-              />
-              <TextField
-                label="إلى تاريخ"
-                type="date"
-                InputLabelProps={{ shrink: true }}
-                value={dateTo}
-                onChange={e => setDateTo(e.target.value)}
-              />
-              <FormControl>
-                <InputLabel>نوع التحويل</InputLabel>
-                <Select
-                  value={type}
-                  label="نوع التحويل"
-                  onChange={e => setType(e.target.value)}
-                  sx={{ minWidth: 120 }}
+    <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #e3f0ff 0%, #fceabb 100%)', py: { xs: 2, md: 4 } }}>
+      <Box sx={{ maxWidth: 1400, mx: 'auto', borderRadius: 6, boxShadow: '0 6px 32px #0002', background: 'rgba(255,255,255,0.97)', p: { xs: 2, md: 4 } }}>
+        <Tabs
+          value={tab}
+          onChange={(_, v) => setTab(v)}
+          variant="fullWidth"
+          sx={{
+            mb: 3,
+            borderRadius: 3,
+            background: 'linear-gradient(90deg, #e3f2fd 60%, #b2ebf2 100%)',
+            boxShadow: '0 2px 12px #1976d210',
+            minHeight: 48,
+            '& .MuiTabs-indicator': { height: 4, borderRadius: 2, background: '#1976d2' },
+          }}
+        >
+          <Tab label="تقارير التحويلات" sx={{ fontWeight: 800, fontSize: { xs: 15, md: 17 } }} />
+          <Tab label="تقارير الموظفين" sx={{ fontWeight: 800, fontSize: { xs: 15, md: 17 } }} />
+        </Tabs>
+        <Box mt={2}>
+          {tab === 0 && (
+            <>
+              {/* فلاتر التحويلات */}
+              <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} mb={3} alignItems="center">
+                <TextField
+                  label="بحث برقم التحويل أو اسم المرسل/المستلم"
+                  value={transferSearch}
+                  onChange={e => setTransferSearch(e.target.value)}
+                  sx={{ minWidth: 200, borderRadius: 3, background: '#f5faff' }}
+                  size="small"
+                />
+                <TextField
+                  label="من تاريخ"
+                  type="date"
+                  InputLabelProps={{ shrink: true }}
+                  value={dateFrom}
+                  onChange={e => setDateFrom(e.target.value)}
+                  sx={{ borderRadius: 3, background: '#f5faff' }}
+                  size="small"
+                />
+                <TextField
+                  label="إلى تاريخ"
+                  type="date"
+                  InputLabelProps={{ shrink: true }}
+                  value={dateTo}
+                  onChange={e => setDateTo(e.target.value)}
+                  sx={{ borderRadius: 3, background: '#f5faff' }}
+                  size="small"
+                />
+                <FormControl sx={{ minWidth: 120, borderRadius: 3, background: '#f5faff' }} size="small">
+                  <InputLabel>نوع التحويل</InputLabel>
+                  <Select value={type} label="نوع التحويل" onChange={e => setType(e.target.value)}>
+                    {typeOptions.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
+                  </Select>
+                </FormControl>
+                <FormControl sx={{ minWidth: 120, borderRadius: 3, background: '#f5faff' }} size="small">
+                  <InputLabel>الحالة</InputLabel>
+                  <Select value={status} label="الحالة" onChange={e => setStatus(e.target.value)}>
+                    {statusOptions.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
+                  </Select>
+                </FormControl>
+                <Button
+                  variant="contained"
+                  color="success"
+                  onClick={handleGenerateReport}
+                  disabled={loading}
+                  sx={{ borderRadius: 99, fontWeight: 700, px: 3, boxShadow: '0 2px 8px #43a04722' }}
                 >
-                  {typeOptions.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
-                </Select>
-              </FormControl>
-              <FormControl>
-                <InputLabel>الحالة</InputLabel>
-                <Select
-                  value={status}
-                  label="الحالة"
-                  onChange={e => setStatus(e.target.value)}
-                  sx={{ minWidth: 120 }}
+                  {loading ? "جاري التحميل..." : "توليد التقرير"}
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={() => exportToCSV(filteredTransfers, transferColumns, "transfers_report.csv")}
+                  disabled={!showReport || filteredTransfers.length === 0}
+                  sx={{ borderRadius: 99, fontWeight: 700, px: 3 }}
                 >
-                  {statusOptions.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
-                </Select>
-              </FormControl>
-              <Button
-                variant="contained"
-                color="success"
-                onClick={handleGenerateReport}
-                disabled={loading}
-              >
-                {loading ? "جاري التحميل..." : "توليد التقرير"}
-              </Button>
-              <Button
-                variant="outlined"
-                color="primary"
-                onClick={() => exportToCSV(filteredTransfers, transferColumns, "transfers_report.csv")}
-                disabled={!showReport || filteredTransfers.length === 0}
-              >
-                تصدير CSV
-              </Button>
-            </Stack>
-            {/* رسالة الخطأ */}
-            {error && (
-              <Typography color="error" mb={2}>{error}</Typography>
-            )}
-            {/* جدول التحويلات */}
-            {showReport && (
-              <Box className="overflow-x-auto rounded-xl shadow bg-white">
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      {transferColumns.map(col => (
-                        <TableCell key={col.key}>{col.label}</TableCell>
-                      ))}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {loading ? (
-                      <TableRow>
-                        <TableCell colSpan={transferColumns.length} align="center">جاري التحميل...</TableCell>
+                  تصدير CSV
+                </Button>
+              </Stack>
+              {/* رسالة الخطأ */}
+              {error && (
+                <Typography color="error" mb={2} sx={{ fontWeight: 700, fontSize: 16, borderRadius: 2, background: '#ffebee', px: 2, py: 1, boxShadow: '0 2px 8px #f4433620' }}>{error}</Typography>
+              )}
+              {/* جدول التحويلات */}
+              {showReport && (
+                <Box className="overflow-x-auto" sx={{ borderRadius: 4, boxShadow: '0 2px 16px #1976d210', background: '#fff', mt: 2 }}>
+                  <Table>
+                    <TableHead>
+                      <TableRow sx={{ background: 'linear-gradient(90deg, #e3f2fd 60%, #b2ebf2 100%)' }}>
+                        {transferColumns.map(col => (
+                          <TableCell key={col.key} sx={{ fontWeight: 800, fontSize: 16 }}>{col.label}</TableCell>
+                        ))}
                       </TableRow>
-                    ) : filteredTransfers.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={transferColumns.length} align="center">لا يوجد بيانات</TableCell>
-                      </TableRow>
-                    ) : (
-                      filteredTransfers.map((tr, idx) => (
-                        <TableRow key={idx}>
-                          {transferColumns.map(col => (
-                            <TableCell key={col.key}>{tr[col.key as keyof Transfer]}</TableCell>
-                          ))}
+                    </TableHead>
+                    <TableBody>
+                      {loading ? (
+                        <TableRow>
+                          <TableCell colSpan={transferColumns.length} align="center"><span style={{ display: 'flex', justifyContent: 'center' }}><span className="loader"></span></span></TableCell>
                         </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </Box>
-            )}
-          </>
-        )}
-        {tab === 1 && (
-          <>
-            {/* فلاتر الموظفين */}
-            <Stack direction={{ xs: "column", md: "row" }} spacing={2} mb={3}>
-              <TextField
-                label="بحث بالاسم أو اسم المستخدم"
-                value={employeeSearch}
-                onChange={e => setEmployeeSearch(e.target.value)}
-                sx={{ minWidth: 200 }}
-              />
-              <FormControl>
-                <InputLabel>الحالة</InputLabel>
-                <Select
-                  value={employeeStatus}
-                  label="الحالة"
-                  onChange={e => setEmployeeStatus(e.target.value)}
-                  sx={{ minWidth: 120 }}
-                >
-                  {employeeStatusOptions.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
-                </Select>
-              </FormControl>
-              <FormControl>
-                <InputLabel>الدور</InputLabel>
-                <Select
-                  value={employeeRole}
-                  label="الدور"
-                  onChange={e => setEmployeeRole(e.target.value)}
-                  sx={{ minWidth: 120 }}
-                >
-                  {employeeRoleOptions.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
-                </Select>
-              </FormControl>
-              <Button
-                variant="contained"
-                color="success"
-                onClick={handleGenerateEmployeeReport}
-                disabled={loadingEmployees}
-              >
-                {loadingEmployees ? "جاري التحميل..." : "توليد التقرير"}
-              </Button>
-              <Button
-                variant="outlined"
-                color="primary"
-                onClick={() => exportToCSV(filteredEmployees, employeeColumns, "employees_report.csv")}
-                disabled={!showEmployeeReport || filteredEmployees.length === 0}
-              >
-                تصدير CSV
-              </Button>
-            </Stack>
-            {/* رسالة الخطأ */}
-            {errorEmployees && (
-              <Typography color="error" mb={2}>{errorEmployees}</Typography>
-            )}
-            {/* جدول الموظفين */}
-            {showEmployeeReport && (
-              <Box className="overflow-x-auto rounded-xl shadow bg-white">
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      {employeeColumns.map(col => (
-                        <TableCell key={col.key}>{col.label}</TableCell>
-                      ))}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {loadingEmployees ? (
-                      <TableRow>
-                        <TableCell colSpan={employeeColumns.length} align="center">جاري التحميل...</TableCell>
-                      </TableRow>
-                    ) : filteredEmployees.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={employeeColumns.length} align="center">لا يوجد بيانات</TableCell>
-                      </TableRow>
-                    ) : (
-                      filteredEmployees.map((emp, idx) => (
-                        <TableRow key={idx}>
-                          {employeeColumns.map(col => (
-                            <TableCell key={col.key}>{emp[col.key as keyof Employee]}</TableCell>
-                          ))}
+                      ) : filteredTransfers.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={transferColumns.length} align="center">لا يوجد بيانات</TableCell>
                         </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </Box>
-            )}
-          </>
-        )}
+                      ) : (
+                        filteredTransfers.map((tr, idx) => (
+                          <TableRow key={idx} sx={{ transition: 'background 0.2s', '&:hover': { background: '#e3f2fd55' } }}>
+                            {transferColumns.map(col => (
+                              <TableCell key={col.key} sx={{ fontSize: 15, fontWeight: col.key === 'sending_branch' || col.key === 'receiving_branch' ? 700 : 500 }}>{tr[col.key as keyof Transfer]}</TableCell>
+                            ))}
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </Box>
+              )}
+            </>
+          )}
+          {tab === 1 && (
+            <>
+              {/* فلاتر الموظفين */}
+              <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} mb={3} alignItems="center">
+                <TextField
+                  label="بحث بالاسم أو اسم المستخدم"
+                  value={employeeSearch}
+                  onChange={e => setEmployeeSearch(e.target.value)}
+                  sx={{ minWidth: 200, borderRadius: 3, background: '#f5faff' }}
+                  size="small"
+                />
+                <FormControl sx={{ minWidth: 120, borderRadius: 3, background: '#f5faff' }} size="small">
+                  <InputLabel>الحالة</InputLabel>
+                  <Select value={employeeStatus} label="الحالة" onChange={e => setEmployeeStatus(e.target.value)}>
+                    {employeeStatusOptions.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
+                  </Select>
+                </FormControl>
+                <FormControl sx={{ minWidth: 120, borderRadius: 3, background: '#f5faff' }} size="small">
+                  <InputLabel>الدور</InputLabel>
+                  <Select value={employeeRole} label="الدور" onChange={e => setEmployeeRole(e.target.value)}>
+                    {employeeRoleOptions.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
+                  </Select>
+                </FormControl>
+                <Button
+                  variant="contained"
+                  color="success"
+                  onClick={handleGenerateEmployeeReport}
+                  disabled={loadingEmployees}
+                  sx={{ borderRadius: 99, fontWeight: 700, px: 3, boxShadow: '0 2px 8px #43a04722' }}
+                >
+                  {loadingEmployees ? "جاري التحميل..." : "توليد التقرير"}
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={() => exportToCSV(filteredEmployees, employeeColumns, "employees_report.csv")}
+                  disabled={!showEmployeeReport || filteredEmployees.length === 0}
+                  sx={{ borderRadius: 99, fontWeight: 700, px: 3 }}
+                >
+                  تصدير CSV
+                </Button>
+              </Stack>
+              {/* رسالة الخطأ */}
+              {errorEmployees && (
+                <Typography color="error" mb={2} sx={{ fontWeight: 700, fontSize: 16, borderRadius: 2, background: '#ffebee', px: 2, py: 1, boxShadow: '0 2px 8px #f4433620' }}>{errorEmployees}</Typography>
+              )}
+              {/* جدول الموظفين */}
+              {showEmployeeReport && (
+                <Box className="overflow-x-auto" sx={{ borderRadius: 4, boxShadow: '0 2px 16px #1976d210', background: '#fff', mt: 2 }}>
+                  <Table>
+                    <TableHead>
+                      <TableRow sx={{ background: 'linear-gradient(90deg, #e3f2fd 60%, #b2ebf2 100%)' }}>
+                        {employeeColumns.map(col => (
+                          <TableCell key={col.key} sx={{ fontWeight: 800, fontSize: 16 }}>{col.label}</TableCell>
+                        ))}
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {loadingEmployees ? (
+                        <TableRow>
+                          <TableCell colSpan={employeeColumns.length} align="center"><span style={{ display: 'flex', justifyContent: 'center' }}><span className="loader"></span></span></TableCell>
+                        </TableRow>
+                      ) : filteredEmployees.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={employeeColumns.length} align="center">لا يوجد بيانات</TableCell>
+                        </TableRow>
+                      ) : (
+                        filteredEmployees.map((emp, idx) => (
+                          <TableRow key={idx} sx={{ transition: 'background 0.2s', '&:hover': { background: '#e3f2fd55' } }}>
+                            {employeeColumns.map(col => (
+                              <TableCell key={col.key} sx={{ fontSize: 15 }}>{emp[col.key as keyof Employee]}</TableCell>
+                            ))}
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </Box>
+              )}
+            </>
+          )}
+        </Box>
       </Box>
     </Box>
   );
