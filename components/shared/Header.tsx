@@ -77,7 +77,7 @@ export default function Header() {
             <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-primary-400 to-primary-700 flex items-center justify-center shadow-lg border-4 border-white hover:scale-105 transition-transform">
               <img src="/payment-system.jpg" alt="شعار النظام" className="w-10 h-10 rounded-full" />
             </div>
-            <h1 className="text-2xl font-extrabold text-primary-800 tracking-tight drop-shadow-sm font-[Tajawal,Arial,sans-serif] bg-gradient-to-l from-primary-700 to-primary-500 bg-clip-text text-transparent">نظام التحويلات المالية</h1>
+            <h1 className="text-2xl font-extrabold text-primary-800 tracking-tight drop-shadow-sm font-[Tajawal,Arial,sans-serif] bg-gradient-to-l from-primary-700 to-primary-500 bg-clip-text text-transparent">شركة العنكبوت للحوالات</h1>
           </div>
           {/* روابط التنقل */}
           <div className="hidden md:flex gap-6 items-center">

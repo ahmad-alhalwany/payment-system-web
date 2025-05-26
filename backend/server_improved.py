@@ -2951,7 +2951,7 @@ def get_daily_summary(
 settings_router = APIRouter()
 
 system_settings = {
-    "systemName": "نظام التحويلات المالية",
+    "systemName": "شركة العنكبوت للحوالات",
     "companyName": "اسم الشركة",
     "adminEmail": "admin@example.com",
     "defaultCurrency": "ليرة سورية",
