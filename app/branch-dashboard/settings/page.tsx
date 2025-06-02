@@ -1,23 +1,71 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Stack, Typography, Paper, TextField, Button, Switch, FormControlLabel, Divider, Snackbar, Alert } from "@mui/material";
 import { useAuth } from "@/app/hooks/useAuth";
 import UserSettingsForm from "@/components/settings/UserSettingsForm";
+import axiosInstance from "@/app/api/axios";
 
 export default function BranchSettingsPage() {
-  // بيانات وهمية للعرض فقط
-  const branchInfo = {
-    id: "BR001",
-    name: "فرع دمشق الرئيسي",
-    location: "دمشق - شارع الثورة",
-    governorate: "دمشق"
-  };
+  const { user } = useAuth();
+  const [branchInfo, setBranchInfo] = useState({
+    id: "",
+    name: "",
+    location: "",
+    governorate: "",
+    phone_number: ""
+  });
   const [darkMode, setDarkMode] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
-  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
 
-  const handleSave = () => {
-    setSaveSuccess(true);
+  // جلب بيانات الفرع عند تحميل الصفحة
+  useEffect(() => {
+    const fetchBranch = async () => {
+      try {
+        setLoading(true);
+        // جلب بيانات الفرع حسب branchId من localStorage أو user
+        const branchId = user?.branchId || localStorage.getItem('branchId');
+        if (!branchId) return;
+        const response = await axiosInstance.get(`/branches/${branchId}`);
+        setBranchInfo({
+          id: response.data.id,
+          name: response.data.name,
+          location: response.data.location,
+          governorate: response.data.governorate,
+          phone_number: response.data.phone_number || ""
+        });
+      } catch (e) {
+        // معالجة الخطأ
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBranch();
+  }, [user]);
+
+  const handleSave = async () => {
+    try {
+      setLoading(true);
+      const branchId = branchInfo.id;
+      await axiosInstance.put(`/branches/${branchId}`, {
+        phone_number: branchInfo.phone_number,
+        location: branchInfo.location
+      });
+      setSaveSuccess(true);
+      // إعادة جلب البيانات بعد الحفظ
+      const response = await axiosInstance.get(`/branches/${branchId}`);
+      setBranchInfo({
+        id: response.data.id,
+        name: response.data.name,
+        location: response.data.location,
+        governorate: response.data.governorate,
+        phone_number: response.data.phone_number || ""
+      });
+    } catch (e) {
+      // معالجة الخطأ
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -48,6 +96,13 @@ export default function BranchSettingsPage() {
                 value={branchInfo.governorate}
                 fullWidth
                 disabled
+                sx={{ borderRadius: 2, background: '#f5faff' }}
+              />
+              <TextField
+                label="رقم هاتف الفرع"
+                value={branchInfo.phone_number}
+                onChange={e => setBranchInfo({ ...branchInfo, phone_number: e.target.value })}
+                fullWidth
                 sx={{ borderRadius: 2, background: '#f5faff' }}
               />
             </Stack>

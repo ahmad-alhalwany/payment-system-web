@@ -92,16 +92,10 @@ class TransactionSchema(BaseModel):
     sender: str
     sender_mobile: str
     sender_governorate: str
-    sender_location: str
-    sender_id: Optional[str] = None
-    sender_address: Optional[str] = None
     
     receiver: str
     receiver_mobile: str
     receiver_governorate: str
-    receiver_location: Optional[str] = None
-    receiver_id: Optional[str] = None
-    receiver_address: Optional[str] = None
     
     amount: float
     base_amount: float
@@ -205,6 +199,7 @@ class BranchUpdate(BaseModel):
     location: Optional[str] = None
     governorate: Optional[str] = None
     status: Optional[str] = None
+    phone_number: Optional[str] = None
     
 class UserUpdate(BaseModel):
     username: Optional[str] = None
@@ -225,7 +220,8 @@ class BranchCreate(BaseModel):
     branch_id: str
     name: str
     location: str
-    governorate: str     
+    governorate: str
+    phone_number: Optional[str] = None
         
 def get_current_user(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
@@ -377,15 +373,9 @@ def save_to_db(transaction: TransactionSchema, branch_id=None, employee_id=None,
             sender=transaction.sender,
             sender_mobile=transaction.sender_mobile,
             sender_governorate=transaction.sender_governorate,
-            sender_location=transaction.sender_location,
-            sender_id=transaction.sender_id or "",
-            sender_address=transaction.sender_address or "",
             receiver=transaction.receiver,
             receiver_mobile=transaction.receiver_mobile,
             receiver_governorate=transaction.receiver_governorate,
-            receiver_location=transaction.receiver_location or "",
-            receiver_id=transaction.receiver_id or "",
-            receiver_address=transaction.receiver_address or "",
             amount=transaction.amount,
             base_amount=transaction.base_amount,
             benefited_amount=benefited_amount,
@@ -552,22 +542,33 @@ def update_branch(
     db: Session = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):
-    if current_user["role"] != "director":
-        raise HTTPException(status_code=403, detail="Director access required")
-
     branch = db.query(Branch).filter(Branch.id == branch_id).first()
     if not branch:
         raise HTTPException(status_code=404, detail="Branch not found")
 
-    update_data = branch_data.dict(exclude_unset=True)
-    
-    # Update branch fields
-    for field, value in update_data.items():
-        setattr(branch, field, value)
+    # المدير يمكنه تعديل كل شيء
+    if current_user["role"] == "director":
+        update_data = branch_data.dict(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(branch, field, value)
+    # مدير الفرع يمكنه فقط تعديل فرعه (location و phone_number فقط)
+    elif current_user["role"] == "branch_manager":
+        if branch.id != current_user["branch_id"]:
+            raise HTTPException(status_code=403, detail="You can only edit your own branch")
+        allowed_fields = ["location", "phone_number"]
+        update_data = branch_data.dict(exclude_unset=True)
+        for field, value in update_data.items():
+            if field in allowed_fields:
+                setattr(branch, field, value)
+    else:
+        raise HTTPException(status_code=403, detail="Not enough permissions")
 
     try:
         db.commit()
         db.refresh(branch)
+        # حذف الكاش بعد التعديل
+        from cache import get_branch_cache_key, cache
+        cache.delete(get_branch_cache_key(branch.id))
         return {
             "status": "success",
             "branch": {
@@ -576,13 +577,14 @@ def update_branch(
                 "name": branch.name,
                 "location": branch.location,
                 "governorate": branch.governorate,
+                "phone_number": branch.phone_number,
                 "status": branch.status
             }
         }
     except sqlalchemy.exc.IntegrityError as e:
         db.rollback()
         raise HTTPException(status_code=400, detail="Branch ID or name already exists")
-    
+
 @app.get("/customers/")
 def get_customers(
     name: Optional[str] = None,
@@ -1124,6 +1126,7 @@ def get_branches(request: Request, db: Session = Depends(get_db), current_user: 
             "name": branch.name,
             "location": branch.location,
             "governorate": branch.governorate,
+            "phone_number": branch.phone_number,
             "created_at": branch.created_at.strftime("%Y-%m-%d %H:%M:%S") if branch.created_at else None,
             "allocated_amount_syp": branch.allocated_amount_syp,
             "allocated_amount_usd": branch.allocated_amount_usd,
@@ -1223,6 +1226,7 @@ def get_branch(branch_id: int, db: Session = Depends(get_db), current_user: dict
         "name": branch.name,
         "location": branch.location,
         "governorate": branch.governorate,
+        "phone_number": branch.phone_number,  # تمت الإضافة هنا
         "allocated_amount": branch.allocated_amount,
         "allocated_amount_syp": branch.allocated_amount_syp,
         "allocated_amount_usd": branch.allocated_amount_usd,
@@ -1467,15 +1471,9 @@ def get_transactions(
                 "sender": transaction.sender,
                 "sender_mobile": transaction.sender_mobile,
                 "sender_governorate": transaction.sender_governorate,
-                "sender_location": transaction.sender_location,
-                "sender_id": transaction.sender_id,
-                "sender_address": transaction.sender_address,
                 "receiver": transaction.receiver,
                 "receiver_mobile": transaction.receiver_mobile,
                 "receiver_governorate": transaction.receiver_governorate,
-                "receiver_location": transaction.receiver_location,
-                "receiver_id": transaction.receiver_id,
-                "receiver_address": transaction.receiver_address,
                 "amount": transaction.amount,
                 "base_amount": transaction.base_amount,
                 "benefited_amount": transaction.benefited_amount,
@@ -2190,15 +2188,9 @@ def get_transaction(transaction_id: str, db: Session = Depends(get_db), current_
         "sender": transaction.sender,
         "sender_mobile": transaction.sender_mobile,
         "sender_governorate": transaction.sender_governorate,
-        "sender_location": transaction.sender_location,
-        "sender_id": transaction.sender_id,
-        "sender_address": transaction.sender_address,
         "receiver": transaction.receiver,
         "receiver_mobile": transaction.receiver_mobile,
         "receiver_governorate": transaction.receiver_governorate,
-        "receiver_location": transaction.receiver_location,
-        "receiver_id": transaction.receiver_id,
-        "receiver_address": transaction.receiver_address,
         "amount": transaction.amount,
         "base_amount": transaction.base_amount,
         "benefited_amount": transaction.benefited_amount,

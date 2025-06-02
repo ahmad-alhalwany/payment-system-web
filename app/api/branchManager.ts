@@ -8,6 +8,7 @@ export interface BranchInfo {
   allocated_amount_syp: number;
   allocated_amount_usd: number;
   tax_rate: number;
+  phone_number?: string;
 }
 
 export interface BranchStats {

@@ -26,6 +26,7 @@ class Branch(Base):
     name = Column(String, index=True)
     location = Column(String)
     governorate = Column(String)
+    phone_number = Column(String)  # رقم هاتف الفرع
     allocated_amount_syp = Column(Float, default=0.0)
     allocated_amount_usd = Column(Float, default=0.0)
     allocated_amount = Column(Float, default=0.0)  # Kept for backward compatibility
@@ -70,14 +71,8 @@ class Transaction(Base):
     sender_mobile = Column(String)
     sender_governorate = Column(String)
     sender_location = Column(String)
-    sender_id = Column(String)  # Added sender ID field
-    sender_address = Column(String)  # Added sender address field
     receiver = Column(String)
     receiver_mobile = Column(String)
-    receiver_id = Column(String)
-    receiver_address = Column(String)
-    receiver_governorate = Column(String)
-    receiver_location = Column(String)
     amount = Column(Float)  # Total amount
     base_amount = Column(Float, default=0.0)  # Added base amount
     benefited_amount = Column(Float, default=0.0)  # Added benefited amount
@@ -102,6 +97,7 @@ class Transaction(Base):
     is_received = Column(Boolean, default=False)
     received_at = Column(DateTime)
     date = Column(DateTime, default=datetime.now)
+    receiver_governorate = Column(String)
     
     # Relationships
     branch = relationship("Branch", foreign_keys=[branch_id], back_populates="sent_transactions")

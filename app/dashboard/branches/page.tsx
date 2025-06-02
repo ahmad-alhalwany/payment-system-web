@@ -17,6 +17,7 @@ interface Branch {
   name: string;
   location: string;
   governorate: string;
+  phone_number?: string;
   employee_count: number;
   allocated_amount_syp: number;
   allocated_amount_usd: number;
@@ -282,6 +283,7 @@ export default function BranchesPage() {
                 <th className="px-6 py-3 text-right text-xs font-bold text-primary-700 uppercase tracking-wider cursor-pointer" onClick={() => handleSort("allocated_amount_usd")}>الرصيد ($) {sortField === "allocated_amount_usd" && (sortOrder === "asc" ? "↑" : "↓")}</th>
                 <th className="px-6 py-3 text-right text-xs font-bold text-primary-700 uppercase tracking-wider cursor-pointer" onClick={() => handleSort("tax_rate")}>نسبة الضريبة {sortField === "tax_rate" && (sortOrder === "asc" ? "↑" : "↓")}</th>
                 <th className="px-6 py-3 text-right text-xs font-bold text-primary-700 uppercase tracking-wider">الحالة</th>
+                <th className="px-6 py-3 text-right text-xs font-bold text-primary-700 uppercase tracking-wider">رقم الهاتف</th>
             </tr>
           </thead>
             <tbody className="bg-white divide-y divide-primary-100">
@@ -307,6 +309,7 @@ export default function BranchesPage() {
                       {branch.status === 'active' ? 'نشط' : 'غير نشط'}
                     </span>
                   </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-primary-900">{branch.phone_number || "-"}</td>
               </tr>
             ))}
           </tbody>

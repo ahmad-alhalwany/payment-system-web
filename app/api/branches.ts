@@ -11,6 +11,7 @@ export interface Branch {
   location: string;
   governorate: string;
   status: string;
+  phone_number?: string;
   financial_stats?: {
     available_balance: number;
     total_transactions: number;

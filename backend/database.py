@@ -40,6 +40,7 @@ def reset_database():
                 name TEXT UNIQUE,
                 location TEXT,
                 governorate TEXT,
+                phone_number TEXT,
                 allocated_amount_syp REAL DEFAULT 0.0,
                 allocated_amount_usd REAL DEFAULT 0.0,
                 allocated_amount REAL DEFAULT 0.0,  -- Kept for backward compatibility
@@ -75,41 +76,32 @@ def reset_database():
         
         cursor.execute(text("""
             CREATE TABLE transactions (
-                id TEXT PRIMARY KEY,
+                id serial PRIMARY KEY,
                 sender TEXT,
                 sender_mobile TEXT,
                 sender_governorate TEXT,
                 sender_location TEXT,
-                sender_id TEXT,
-                sender_address TEXT,
-                
                 receiver TEXT,
                 receiver_mobile TEXT,
                 receiver_governorate TEXT,
                 receiver_location TEXT,
-                receiver_id TEXT,
-                receiver_address TEXT,
-                
                 amount REAL,
                 base_amount REAL DEFAULT 0.0,
                 benefited_amount REAL DEFAULT 0.0,
                 tax_rate REAL DEFAULT 0.0,
                 tax_amount REAL DEFAULT 0.0,
                 currency TEXT DEFAULT 'SYP',
-                
                 message TEXT,
                 branch_id INTEGER,
                 destination_branch_id INTEGER,
                 employee_id INTEGER,
                 employee_name TEXT,
                 branch_governorate TEXT,
-                
                 status TEXT DEFAULT 'pending',
                 is_received BOOLEAN DEFAULT FALSE,
                 received_by INTEGER,
                 received_at TIMESTAMP,
                 date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                
                 FOREIGN KEY (branch_id) REFERENCES branches(id) ON DELETE SET NULL,
                 FOREIGN KEY (destination_branch_id) REFERENCES branches(id),
                 FOREIGN KEY (employee_id) REFERENCES users(id) ON DELETE SET NULL,

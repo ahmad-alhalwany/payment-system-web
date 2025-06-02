@@ -11,6 +11,7 @@ interface BranchFormProps {
     governorate?: string;
     status?: string;
     tax_rate?: number;
+    phone_number?: string;
   };
   onSubmit: (data: any) => void;
   onCancel: () => void;
@@ -29,6 +30,7 @@ export default function BranchForm({ initialData = {}, onSubmit, onCancel }: Bra
     governorate: initialData.governorate || "دمشق",
     status: initialData.status || "active",
     tax_rate: initialData.tax_rate || 0,
+    phone_number: initialData.phone_number || "",
   });
   const [error, setError] = useState("");
 
@@ -117,6 +119,17 @@ export default function BranchForm({ initialData = {}, onSubmit, onCancel }: Bra
           value={form.tax_rate}
           onChange={handleChange}
           className="input-field"
+        />
+      </div>
+      <div>
+        <label className="block mb-1 font-medium">رقم هاتف الفرع</label>
+        <input
+          name="phone_number"
+          type="text"
+          value={form.phone_number}
+          onChange={handleChange}
+          className="input-field"
+          required
         />
       </div>
       {error && <div className="text-red-600 text-center">{error}</div>}

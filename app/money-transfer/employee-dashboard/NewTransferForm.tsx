@@ -56,7 +56,6 @@ export default function NewTransferForm({ onSubmit, branches, currentBranch }: N
     mobile: "",
     governorate: "",
     address: "",
-    id: "",
     location: "",
   });
   const [receiver, setReceiver] = useState({
@@ -115,8 +114,6 @@ export default function NewTransferForm({ onSubmit, branches, currentBranch }: N
     const errs = [];
     if (!sender.name) errs.push("اسم المرسل مطلوب");
     if (!sender.mobile || !/^\d{10}$/.test(sender.mobile)) errs.push("رقم هاتف المرسل يجب أن يكون 10 أرقام");
-    if (!sender.id) errs.push("رقم هوية المرسل مطلوب");
-    if (!sender.address) errs.push("عنوان المرسل مطلوب");
     if (!receiver.name) errs.push("اسم المستلم مطلوب");
     if (!receiver.mobile || !/^\d{10}$/.test(receiver.mobile)) errs.push("رقم هاتف المستلم يجب أن يكون 10 أرقام");
     if (!amount || isNaN(Number(amount))) errs.push("المبلغ غير صالح");
@@ -162,7 +159,6 @@ export default function NewTransferForm({ onSubmit, branches, currentBranch }: N
           mobile: "",
           governorate: GOVERNORATES[0],
           address: "",
-          id: "",
           location: "",
         });
         setReceiver({
@@ -263,7 +259,7 @@ export default function NewTransferForm({ onSubmit, branches, currentBranch }: N
 
   return (
     <form
-      className="max-w-2xl mx-auto space-y-8 bg-white/90 rounded-3xl shadow-2xl p-8 md:p-12 border border-primary-100 backdrop-blur-md"
+      className="max-w-full w-full mx-auto space-y-6 bg-white/90 rounded-2xl shadow-2xl p-4 md:p-8 border border-primary-100 backdrop-blur-md"
       style={{ boxShadow: '0 8px 32px #1976d220' }}
       onSubmit={handleSubmit}
     >
@@ -280,9 +276,9 @@ export default function NewTransferForm({ onSubmit, branches, currentBranch }: N
         </button>
       </Modal>
       {showConfirm ? (
-        <div className="space-y-6">
-          <h2 className="text-2xl font-extrabold text-primary-700 mb-4 text-center tracking-wide drop-shadow-sm">تأكيد بيانات التحويل</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-4">
+          <h2 className="text-2xl font-extrabold text-primary-700 mb-2 text-center tracking-wide drop-shadow-sm">تأكيد بيانات التحويل</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div>
               <div className="font-semibold mb-1 text-primary-700">اسم المرسل:</div>
               <div className="bg-gray-50 rounded-xl p-3 border border-primary-100 shadow-sm text-lg font-bold">{sender.name}</div>
@@ -358,48 +354,36 @@ export default function NewTransferForm({ onSubmit, branches, currentBranch }: N
         </div>
       ) : (
         <>
-          <h2 className="text-2xl font-extrabold text-primary-700 mb-6 text-center tracking-wide drop-shadow-sm">بيانات المرسل</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <h2 className="text-2xl font-extrabold text-primary-700 mb-4 text-center tracking-wide drop-shadow-sm">بيانات المرسل</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
             <div className="flex flex-col gap-2">
               <label className="font-semibold text-primary-700">اسم المرسل <span className="text-red-500">*</span></label>
-              <input className="input-modern" placeholder="اسم المرسل" value={sender.name} onChange={e => setSender({ ...sender, name: e.target.value })} required />
+              <input className="input-modern h-14 text-lg" placeholder="اسم المرسل" value={sender.name} onChange={e => setSender({ ...sender, name: e.target.value })} required />
             </div>
             <div className="flex flex-col gap-2">
               <label className="font-semibold text-primary-700">رقم الهاتف <span className="text-red-500">*</span></label>
-              <input className="input-modern" placeholder="رقم الهاتف (10 أرقام)" value={sender.mobile} onChange={e => setSender({ ...sender, mobile: e.target.value })} required />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="font-semibold text-primary-700">رقم الهوية <span className="text-red-500">*</span></label>
-              <input className="input-modern" placeholder="رقم الهوية" value={sender.id} onChange={e => setSender({ ...sender, id: e.target.value })} required />
+              <input className="input-modern h-14 text-lg" placeholder="رقم الهاتف (10 أرقام)" value={sender.mobile} onChange={e => setSender({ ...sender, mobile: e.target.value })} required />
             </div>
             <div className="flex flex-col gap-2">
               <label className="font-semibold text-primary-700">المحافظة <span className="text-red-500">*</span></label>
-              <select className="input-modern" value={sender.governorate} onChange={e => setSender({ ...sender, governorate: e.target.value })} required>
+              <select className="input-modern h-14 text-lg" value={sender.governorate} onChange={e => setSender({ ...sender, governorate: e.target.value })} required>
                 {GOVERNORATES.map((g, index) => <option key={index} value={g}>{g}</option>)}
               </select>
             </div>
-            <div className="flex flex-col gap-2 md:col-span-2">
-              <label className="font-semibold text-primary-700">العنوان <span className="text-red-500">*</span></label>
-              <input className="input-modern" placeholder="العنوان" value={sender.address} onChange={e => setSender({ ...sender, address: e.target.value })} required />
-            </div>
-            <div className="flex flex-col gap-2 md:col-span-2">
-              <label className="font-semibold text-primary-700">الموقع</label>
-              <input className="input-modern" placeholder="الموقع" value={sender.location} onChange={e => setSender({ ...sender, location: e.target.value })} />
-            </div>
           </div>
-          <h2 className="text-2xl font-extrabold text-primary-700 mb-6 text-center tracking-wide drop-shadow-sm">بيانات المستلم</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <h2 className="text-2xl font-extrabold text-primary-700 mb-4 text-center tracking-wide drop-shadow-sm">بيانات المستلم</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
             <div className="flex flex-col gap-2">
               <label className="font-semibold text-primary-700">اسم المستلم <span className="text-red-500">*</span></label>
-              <input className="input-modern" placeholder="اسم المستلم" value={receiver.name} onChange={e => setReceiver({ ...receiver, name: e.target.value })} required />
+              <input className="input-modern h-14 text-lg" placeholder="اسم المستلم" value={receiver.name} onChange={e => setReceiver({ ...receiver, name: e.target.value })} required />
             </div>
             <div className="flex flex-col gap-2">
               <label className="font-semibold text-primary-700">رقم الهاتف <span className="text-red-500">*</span></label>
-              <input className="input-modern" placeholder="رقم الهاتف (10 أرقام)" value={receiver.mobile} onChange={e => setReceiver({ ...receiver, mobile: e.target.value })} required />
+              <input className="input-modern h-14 text-lg" placeholder="رقم الهاتف (10 أرقام)" value={receiver.mobile} onChange={e => setReceiver({ ...receiver, mobile: e.target.value })} required />
             </div>
-            <div className="flex flex-col gap-2 md:col-span-2">
+            <div className="flex flex-col gap-2">
               <label className="font-semibold text-primary-700">المحافظة <span className="text-red-500">*</span></label>
-              <select className="input-modern" value={receiver.governorate} onChange={e => {
+              <select className="input-modern h-14 text-lg" value={receiver.governorate} onChange={e => {
                 setReceiver({ ...receiver, governorate: e.target.value });
                 setBranch("");
               }} required>
@@ -407,26 +391,26 @@ export default function NewTransferForm({ onSubmit, branches, currentBranch }: N
               </select>
             </div>
           </div>
-          <h2 className="text-2xl font-extrabold text-primary-700 mb-6 text-center tracking-wide drop-shadow-sm">تفاصيل التحويل</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <h2 className="text-2xl font-extrabold text-primary-700 mb-4 text-center tracking-wide drop-shadow-sm">تفاصيل التحويل</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
             <div className="flex flex-col gap-2">
               <label className="font-semibold text-primary-700">المبلغ <span className="text-red-500">*</span></label>
-              <input className="input-modern" placeholder="المبلغ" value={amount} onChange={e => setAmount(e.target.value)} required />
+              <input className="input-modern h-14 text-lg" placeholder="المبلغ" value={amount} onChange={e => setAmount(e.target.value)} required />
             </div>
             <div className="flex flex-col gap-2">
               <label className="font-semibold text-primary-700">المبلغ المستفاد <span className="text-gray-400">(اختياري، يطبق عليه الضريبة)</span></label>
-              <input className="input-modern" placeholder="المبلغ المستفاد (يطبق عليه الضريبة)" value={benefitAmount} onChange={e => setBenefitAmount(e.target.value)} />
+              <input className="input-modern h-14 text-lg" placeholder="المبلغ المستفاد (يطبق عليه الضريبة)" value={benefitAmount} onChange={e => setBenefitAmount(e.target.value)} />
             </div>
             <div className="flex flex-col gap-2">
               <label className="font-semibold text-primary-700">العملة <span className="text-red-500">*</span></label>
-              <select className="input-modern" value={currency} onChange={e => setCurrency(e.target.value)} required>
+              <select className="input-modern h-14 text-lg" value={currency} onChange={e => setCurrency(e.target.value)} required>
                 {CURRENCIES.map((c, index) => <option key={index} value={c.code}>{c.name} ({c.code})</option>)}
               </select>
             </div>
-            <div className="flex flex-col gap-2 md:col-span-2">
+            <div className="flex flex-col gap-2 col-span-1 xl:col-span-3">
               <label className="font-semibold text-primary-700">الفرع المستلم <span className="text-red-500">*</span></label>
               <select
-                className="input-modern"
+                className="input-modern h-14 text-lg"
                 value={branch}
                 onChange={e => setBranch(e.target.value)}
                 required
@@ -437,12 +421,12 @@ export default function NewTransferForm({ onSubmit, branches, currentBranch }: N
                 ))}
               </select>
             </div>
-            <div className="flex flex-col gap-2 md:col-span-2">
+            <div className="flex flex-col gap-2 col-span-1 xl:col-span-3">
               <label className="font-semibold text-primary-700">رسالة <span className="text-gray-400">(اختياري)</span></label>
-              <input className="input-modern" placeholder="رسالة (اختياري)" value={message} onChange={e => setMessage(e.target.value)} />
+              <input className="input-modern h-14 text-lg" placeholder="رسالة (اختياري)" value={message} onChange={e => setMessage(e.target.value)} />
             </div>
           </div>
-          <div className="text-center mt-8">
+          <div className="text-center mt-6">
             <button type="submit" className="bg-primary-500 text-white px-12 py-3 rounded-xl font-bold hover:bg-primary-600 transition text-xl shadow-lg w-full md:w-auto" disabled={loading}>
               {loading ? "جاري الإرسال..." : "إرسال التحويل"}
             </button>
