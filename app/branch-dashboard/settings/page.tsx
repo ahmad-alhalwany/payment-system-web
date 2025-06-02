@@ -24,7 +24,7 @@ export default function BranchSettingsPage() {
       try {
         setLoading(true);
         // جلب بيانات الفرع حسب branchId من localStorage أو user
-        const branchId = user?.branchId || localStorage.getItem('branchId');
+        const branchId = user?.branch_id || localStorage.getItem('branchId');
         if (!branchId) return;
         const response = await axiosInstance.get(`/branches/${branchId}`);
         setBranchInfo({
