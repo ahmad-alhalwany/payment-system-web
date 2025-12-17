@@ -111,6 +111,18 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 # Create the database tables if they don't exist
 Base.metadata.create_all(bind=engine)
 
+# Root endpoint
+@app.get("/")
+def root():
+    """Root endpoint"""
+    return {
+        "message": "Payment System API",
+        "status": "running",
+        "version": "1.0.0",
+        "docs": "/docs" if settings.DEBUG else "disabled",
+        "health": "/health"
+    }
+
 # Health check endpoint
 @app.get("/health")
 async def health_check():
@@ -1431,10 +1443,17 @@ def check_initialization(
     db: Session = Depends(get_db)
 ):
     """Check if system is initialized (has at least one director user)"""
-    director_count = db.query(func.count(User.id)).filter(User.role == "director").scalar() or 0
-    is_initialized = director_count > 0
-    
-    return {"is_initialized": is_initialized}
+    try:
+        director_count = db.query(func.count(User.id)).filter(User.role == "director").scalar() or 0
+        is_initialized = director_count > 0
+        
+        logger.info(f"System initialization check: {is_initialized} (director count: {director_count})")
+        
+        return {"is_initialized": is_initialized}
+    except Exception as e:
+        logger.error(f"Error checking initialization: {str(e)}", exc_info=True)
+        # Return False on error to allow initialization
+        return {"is_initialized": False}
 
 class InitializeSystemRequest(BaseModel):
     username: str
@@ -1446,35 +1465,55 @@ def initialize_system(
     db: Session = Depends(get_db)
 ):
     """Initialize system with first director user"""
-    # Check if system is already initialized
-    director_count = db.query(func.count(User.id)).filter(User.role == "director").scalar() or 0
-    if director_count > 0:
-        raise HTTPException(status_code=400, detail="System is already initialized")
-    
-    # Check if username already exists
-    existing_user = db.query(User).filter(User.username == data.username).first()
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Username already exists")
-    
-    # Create first director user
-    hashed_password = hash_password(data.password)
-    new_user = User(
-        username=data.username,
-        password=hashed_password,
-        role="director",
-        branch_id=None  # Director doesn't belong to a branch
-    )
-    
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    
-    return {
-        "status": "success",
-        "message": "System initialized successfully",
-        "user_id": new_user.id,
-        "username": new_user.username
-    }
+    try:
+        # Validate input
+        if not data.username or len(data.username.strip()) == 0:
+            raise HTTPException(status_code=400, detail="Username is required")
+        
+        if not data.password or len(data.password) < 6:
+            raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+        
+        # Check if system is already initialized
+        director_count = db.query(func.count(User.id)).filter(User.role == "director").scalar() or 0
+        if director_count > 0:
+            logger.warning("Attempt to initialize already initialized system")
+            raise HTTPException(status_code=400, detail="System is already initialized")
+        
+        # Check if username already exists
+        existing_user = db.query(User).filter(User.username == data.username.strip()).first()
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Username already exists")
+        
+        # Create first director user
+        hashed_password = hash_password(data.password)
+        new_user = User(
+            username=data.username.strip(),
+            password=hashed_password,
+            role="director",
+            branch_id=None  # Director doesn't belong to a branch
+        )
+        
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+        
+        logger.info(f"System initialized successfully with user: {new_user.username} (ID: {new_user.id})")
+        
+        return {
+            "status": "success",
+            "message": "System initialized successfully",
+            "user_id": new_user.id,
+            "username": new_user.username
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error initializing system: {str(e)}", exc_info=True)
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to initialize system: {str(e)}"
+        )
 
 # ============================================
 # Additional Authentication Endpoints
@@ -1823,13 +1862,4 @@ def get_transaction_stats(
         "pending": pending,
         "processing": processing,
         "cancelled": cancelled
-    }
-
-# Note: Additional endpoints like /reports/, /profits/, etc. should be added as needed
-@app.get("/")
-def root():
-    return {
-        "message": "Payment System API",
-        "status": "running",
-        "docs": "/docs" if settings.DEBUG else "disabled"
     }

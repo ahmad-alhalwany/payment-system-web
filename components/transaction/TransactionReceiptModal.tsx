@@ -85,7 +85,7 @@ export default function TransactionReceiptModal({
           {/* شعار واسم الشركة */}
           <div className="flex items-center gap-4">
             <Image src="/payment-system.jpg" alt="شعار الشركة" width={56} height={56} className="rounded-full border border-yellow-600 bg-white" />
-            <div className="text-2xl font-extrabold text-yellow-700 drop-shadow-sm">شركة العنكبوت للحوالات المالية</div>
+            <div className="text-2xl font-extrabold text-yellow-700 drop-shadow-sm">مكتب الجاسم للحوالات المالية</div>
           </div>
           {/* رقم الإشعار */}
           <div className="text-right flex flex-col items-end max-w-[220px]">
