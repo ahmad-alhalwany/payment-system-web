@@ -1826,3 +1826,10 @@ def get_transaction_stats(
     }
 
 # Note: Additional endpoints like /reports/, /profits/, etc. should be added as needed
+@app.get("/")
+def root():
+    return {
+        "message": "Payment System API",
+        "status": "running",
+        "docs": "/docs" if settings.DEBUG else "disabled"
+    }
