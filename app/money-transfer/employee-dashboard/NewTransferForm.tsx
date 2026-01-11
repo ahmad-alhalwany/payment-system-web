@@ -113,20 +113,12 @@ export default function NewTransferForm({ onSubmit, branches, currentBranch }: N
   const validate = () => {
     const errs = [];
     if (!sender.name) errs.push("اسم المرسل مطلوب");
-    if (!sender.mobile || !/^\d{10}$/.test(sender.mobile)) errs.push("رقم هاتف المرسل يجب أن يكون 10 أرقام");
+    if (sender.mobile && !/^\d{9,10}$/.test(sender.mobile)) errs.push("رقم هاتف المرسل يجب أن يكون 9-10 أرقام");
     if (!receiver.name) errs.push("اسم المستلم مطلوب");
-    if (!receiver.mobile || !/^\d{10}$/.test(receiver.mobile)) errs.push("رقم هاتف المستلم يجب أن يكون 10 أرقام");
+    if (receiver.mobile && !/^\d{9,10}$/.test(receiver.mobile)) errs.push("رقم هاتف المستلم يجب أن يكون 9-10 أرقام");
     if (!amount || isNaN(Number(amount))) errs.push("المبلغ غير صالح");
     if (!currency) errs.push("العملة مطلوبة");
     if (!branch) errs.push("يجب اختيار الفرع المستلم");
-    // تحقق من الرصيد
-    if (availableBalance !== null && Number(amount) > availableBalance) {
-      if (currency === "USD") {
-        errs.push("الرصيد غير كافٍ بالدولار لإتمام العملية. الرصيد المتاح: " + availableBalance.toLocaleString() + " USD");
-      } else {
-        errs.push("الرصيد غير كافٍ بالليرة السورية لإتمام العملية. الرصيد المتاح: " + availableBalance.toLocaleString() + " SYP");
-      }
-    }
     return errs;
   };
 
@@ -186,10 +178,12 @@ export default function NewTransferForm({ onSubmit, branches, currentBranch }: N
           <div className="font-semibold mb-1">اسم المرسل:</div>
           <div className="bg-gray-50 rounded p-2 border">{sender.name}</div>
         </div>
-        <div>
-          <div className="font-semibold mb-1">رقم هاتف المرسل:</div>
-          <div className="bg-gray-50 rounded p-2 border">{sender.mobile}</div>
-        </div>
+        {sender.mobile && (
+          <div>
+            <div className="font-semibold mb-1">رقم هاتف المرسل:</div>
+            <div className="bg-gray-50 rounded p-2 border">{sender.mobile}</div>
+          </div>
+        )}
         <div>
           <div className="font-semibold mb-1">محافظة المرسل:</div>
           <div className="bg-gray-50 rounded p-2 border">{sender.governorate}</div>
@@ -198,10 +192,12 @@ export default function NewTransferForm({ onSubmit, branches, currentBranch }: N
           <div className="font-semibold mb-1">اسم المستلم:</div>
           <div className="bg-gray-50 rounded p-2 border">{receiver.name}</div>
         </div>
-        <div>
-          <div className="font-semibold mb-1">رقم هاتف المستلم:</div>
-          <div className="bg-gray-50 rounded p-2 border">{receiver.mobile}</div>
-        </div>
+        {receiver.mobile && (
+          <div>
+            <div className="font-semibold mb-1">رقم هاتف المستلم:</div>
+            <div className="bg-gray-50 rounded p-2 border">{receiver.mobile}</div>
+          </div>
+        )}
         <div>
           <div className="font-semibold mb-1">محافظة المستلم:</div>
           <div className="bg-gray-50 rounded p-2 border">{receiver.governorate}</div>
@@ -295,10 +291,12 @@ export default function NewTransferForm({ onSubmit, branches, currentBranch }: N
               <div className="font-semibold mb-1 text-primary-700">اسم المستلم:</div>
               <div className="bg-gray-50 rounded-xl p-3 border border-primary-100 shadow-sm text-lg font-bold">{receiver.name}</div>
             </div>
-            <div>
-              <div className="font-semibold mb-1 text-primary-700">رقم هاتف المستلم:</div>
-              <div className="bg-gray-50 rounded-xl p-3 border border-primary-100 shadow-sm text-lg font-bold">{receiver.mobile}</div>
-            </div>
+            {receiver.mobile && (
+              <div>
+                <div className="font-semibold mb-1 text-primary-700">رقم هاتف المستلم:</div>
+                <div className="bg-gray-50 rounded-xl p-3 border border-primary-100 shadow-sm text-lg font-bold">{receiver.mobile}</div>
+              </div>
+            )}
             <div>
               <div className="font-semibold mb-1 text-primary-700">محافظة المستلم:</div>
               <div className="bg-gray-50 rounded-xl p-3 border border-primary-100 shadow-sm text-lg font-bold">{receiver.governorate}</div>
@@ -361,8 +359,8 @@ export default function NewTransferForm({ onSubmit, branches, currentBranch }: N
               <input className="input-modern h-14 text-lg" placeholder="اسم المرسل" value={sender.name} onChange={e => setSender({ ...sender, name: e.target.value })} required />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="font-semibold text-primary-700">رقم الهاتف <span className="text-red-500">*</span></label>
-              <input className="input-modern h-14 text-lg" placeholder="رقم الهاتف (10 أرقام)" value={sender.mobile} onChange={e => setSender({ ...sender, mobile: e.target.value })} required />
+              <label className="font-semibold text-primary-700">رقم الهاتف</label>
+              <input className="input-modern h-14 text-lg" placeholder="رقم الهاتف (اختياري - 9-10 أرقام)" value={sender.mobile} onChange={e => setSender({ ...sender, mobile: e.target.value })} />
             </div>
             <div className="flex flex-col gap-2">
               <label className="font-semibold text-primary-700">المحافظة <span className="text-red-500">*</span></label>
@@ -379,7 +377,7 @@ export default function NewTransferForm({ onSubmit, branches, currentBranch }: N
             </div>
             <div className="flex flex-col gap-2">
               <label className="font-semibold text-primary-700">رقم الهاتف <span className="text-red-500">*</span></label>
-              <input className="input-modern h-14 text-lg" placeholder="رقم الهاتف (10 أرقام)" value={receiver.mobile} onChange={e => setReceiver({ ...receiver, mobile: e.target.value })} required />
+              <input className="input-modern h-14 text-lg" placeholder="رقم الهاتف (اختياري - 9-10 أرقام)" value={receiver.mobile} onChange={e => setReceiver({ ...receiver, mobile: e.target.value })} />
             </div>
             <div className="flex flex-col gap-2">
               <label className="font-semibold text-primary-700">المحافظة <span className="text-red-500">*</span></label>

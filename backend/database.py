@@ -7,7 +7,7 @@ import os
 # Get database URL from environment variable with fallback
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql+psycopg2://postgres:postgres@localhost/postgres"
+    "postgresql+psycopg2://postgres:postgres@localhost:5433/paymentdb"
 )
 
 # SQLAlchemy setup

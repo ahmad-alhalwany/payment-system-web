@@ -13,9 +13,6 @@ export default function PrintTransferView({ transfer, onClose }: PrintTransferVi
   // تحديد نوع العملية (إرسال أو استلام)
   const isReceived = transfer.status === "completed";
   const operationType = isReceived ? "استلام" : "إرسال";
-  // رقم هاتف المرسل والمستلم
-  const senderMobile = transfer.sender_mobile || "-";
-  const receiverMobile = transfer.receiver_mobile || "-";
   // التاريخ والوقت
   const date = transfer.date?.split("T")[0] || "-";
   const time = transfer.date?.split("T")[1]?.slice(0, 8) || "--:--";
@@ -76,7 +73,7 @@ export default function PrintTransferView({ transfer, onClose }: PrintTransferVi
         {/* شعار واسم الشركة */}
         <div className="flex items-center gap-4">
           <Image src="/payment-system.jpg" alt="شعار الشركة" width={56} height={56} className="rounded-full border border-yellow-600 bg-white" />
-          <div className="text-2xl font-extrabold text-yellow-700 drop-shadow-sm">شركة العنكبوت للحوالات المالية</div>
+          <div className="text-2xl font-extrabold text-yellow-700 drop-shadow-sm">مكتب جاسم للحوالات</div>
         </div>
         {/* رقم الإشعار */}
         <div className="text-right flex flex-col items-end max-w-[220px]">
@@ -106,7 +103,7 @@ export default function PrintTransferView({ transfer, onClose }: PrintTransferVi
         </div>
       </div>
       {/* الصف الثاني: المرسل - المستفيد - الجوال */}
-      <div className="grid grid-cols-3 gap-2 px-8 pt-0 pb-0.5 text-center text-base">
+      <div className={`grid gap-2 px-8 pt-0 pb-0.5 text-center text-base ${transfer.receiver_mobile ? 'grid-cols-3' : 'grid-cols-2'}`}>
         <div className="text-black font-bold text-base">
           <span className="font-bold text-gray-700">المرسل</span><br />
           {transfer.sender}
@@ -115,10 +112,12 @@ export default function PrintTransferView({ transfer, onClose }: PrintTransferVi
           <span className="font-bold text-gray-700">المستفيد</span><br />
           {transfer.receiver}
         </div>
-        <div className="text-black font-bold text-base">
-          <span className="font-bold text-gray-700">الجوال</span><br />
-          {transfer.receiver_mobile || "-"}
-        </div>
+        {transfer.receiver_mobile && (
+          <div className="text-black font-bold text-base">
+            <span className="font-bold text-gray-700">الجوال</span><br />
+            {transfer.receiver_mobile}
+          </div>
+        )}
       </div>
       {/* المبلغ */}
       <div className="px-8 py-0.5 text-center bg-gradient-to-l from-yellow-50 to-white border-y border-yellow-200">

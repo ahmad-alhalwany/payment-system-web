@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import ModernButton from "@/components/ui/ModernButton";
 import BranchModal from "@/components/branch/BranchModal";
 import BranchForm from "@/components/branch/BranchForm";
-import BranchBalanceModal from "@/components/branch/BranchBalanceModal";
 import BranchFundHistoryModal from "@/components/branch/BranchFundHistoryModal";
 import BranchTaxModal from "@/components/branch/BranchTaxModal";
 import axiosInstance from "@/app/api/axios";
@@ -41,7 +40,6 @@ export default function BranchesPage() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [showBalanceModal, setShowBalanceModal] = useState(false);
   const [showFundHistoryModal, setShowFundHistoryModal] = useState(false);
   const [showTaxModal, setShowTaxModal] = useState(false);
   const [selectedBranchId, setSelectedBranchId] = useState<number | null>(null);
@@ -168,18 +166,6 @@ export default function BranchesPage() {
     }
   };
 
-  // تحديث رصيد الفرع
-  const handleUpdateBalance = async (data: any) => {
-    if (!selectedBranchId) return;
-    try {
-      await axiosInstance.post(`/branches/${selectedBranchId}/allocate-funds/`, data);
-      await fetchBranches();
-      setShowBalanceModal(false);
-    } catch (error) {
-      console.error('Error updating branch balance:', error);
-      setError("فشل في تحديث رصيد الفرع");
-    }
-  };
 
   // تحديث نسبة الضريبة
   const handleUpdateTaxRate = async (taxRate: number) => {
@@ -235,9 +221,6 @@ export default function BranchesPage() {
         </ModernButton>
             <ModernButton color="#e74c3c" onClick={() => setShowDeleteModal(true)} disabled={!selectedBranchId}>
               حذف
-        </ModernButton>
-            <ModernButton color="#f59e42" onClick={() => setShowBalanceModal(true)} disabled={!selectedBranchId}>
-              تحديث الرصيد
         </ModernButton>
             <ModernButton color="#9b59b6" onClick={() => setShowTaxModal(true)} disabled={!selectedBranchId}>
               تحديث الضريبة
@@ -361,14 +344,6 @@ export default function BranchesPage() {
           </div>
         )}
 
-        {showBalanceModal && selectedBranch && (
-      <BranchBalanceModal
-        open={showBalanceModal}
-        onClose={() => setShowBalanceModal(false)}
-        branch={selectedBranch}
-            onSubmit={handleUpdateBalance}
-          />
-        )}
 
         {showTaxModal && selectedBranch && (
           <BranchTaxModal

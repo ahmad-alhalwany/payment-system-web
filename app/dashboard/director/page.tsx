@@ -5,7 +5,6 @@ import Link from "next/link";
 import EmployeeFormModal from "@/components/employee/EmployeeFormModal";
 import BranchModal from "@/components/branch/BranchModal";
 import BranchForm from "@/components/branch/BranchForm";
-import BranchBalanceModal from "@/components/branch/BranchBalanceModal";
 import axiosInstance from "@/app/api/axios";
 
 interface Activity {
@@ -38,7 +37,6 @@ interface DashboardStats {
 const quickActions = [
   { label: "إضافة موظف", type: "addEmployee", color: "bg-green-500", icon: "➕" },
   { label: "إضافة فرع", type: "addBranch", color: "bg-yellow-500", icon: "🏢" },
-  { label: "إضافة رصيد لفرع", type: "addBranchBalance", color: "bg-purple-500", icon: "💳" },
   { label: "تحويل جديد", href: "/money-transfer?role=director", color: "bg-blue-500", icon: "🔄" },
   { label: "التقارير", href: "/dashboard/reports", color: "bg-red-500", icon: "📊" },
 ];
@@ -83,11 +81,9 @@ function AnimatedNumber({ value }: { value: number | string }) {
 }
 
 export default function DirectorDashboard() {
-  const [modal, setModal] = useState<null | 'addEmployee' | 'addBranch' | 'addBranchBalance'>(null);
+  const [modal, setModal] = useState<null | 'addEmployee' | 'addBranch'>(null);
   const [showEmployeeModal, setShowEmployeeModal] = useState(false);
   const [showAddBranchModal, setShowAddBranchModal] = useState(false);
-  const [showBalanceModal, setShowBalanceModal] = useState(false);
-  const [selectedBranchId, setSelectedBranchId] = useState<string | undefined>(undefined);
   const [stats, setStats] = useState<DashboardStats>({
     branches: 0,
     employees: 0,
@@ -184,37 +180,6 @@ export default function DirectorDashboard() {
     }
   };
 
-  const handleOpenBalanceModal = () => {
-    setShowBalanceModal(true);
-    setModal(null);
-    setSelectedBranchId(undefined);
-  };
-
-  const handleCloseBalanceModal = () => {
-    setShowBalanceModal(false);
-    setSelectedBranchId(undefined);
-  };
-
-  const handleBalanceSubmit = async (data: any) => {
-    try {
-      setLoading(true);
-      if (!selectedBranchId) throw new Error("لم يتم اختيار فرع");
-      await axiosInstance.post(`/branches/${selectedBranchId}/allocate-funds/`, data);
-      setShowBalanceModal(false);
-      setSelectedBranchId(undefined);
-      setSuccess("تم إضافة الرصيد بنجاح");
-      setTimeout(() => setSuccess(""), 3000);
-      await fetchDashboardData();
-    } catch (error) {
-      console.error('Error adding balance:', error);
-      setError("فشل في إضافة الرصيد");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const selectedBranch = branches.find((b: Branch) => b.id === Number(selectedBranchId));
-
   const statsData = [
     { label: "عدد الفروع", value: stats.branches, color: "bg-primary-100", icon: "🏢" },
     { label: "عدد الموظفين", value: stats.employees, color: "bg-primary-100", icon: "👥" },
@@ -275,7 +240,6 @@ export default function DirectorDashboard() {
               onClick={() => {
                 if (action.type === 'addEmployee') handleOpenEmployeeModal();
                 else if (action.type === 'addBranch') handleOpenAddBranchModal();
-                else if (action.type === 'addBranchBalance') handleOpenBalanceModal();
                 else setModal(action.type as any);
               }}
               className={`flex items-center gap-2 px-6 py-3 rounded-lg text-white font-semibold shadow transition hover:scale-105 ${action.color} ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -302,33 +266,6 @@ export default function DirectorDashboard() {
         <BranchForm onSubmit={handleAddBranchSubmit} onCancel={handleCloseAddBranchModal} />
       </BranchModal>
 
-      {/* Branch Balance Modal with branch select */}
-      <BranchModal open={showBalanceModal} onClose={handleCloseBalanceModal} title="إضافة رصيد لفرع">
-        {!selectedBranchId ? (
-          <div className="space-y-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">اختر الفرع</label>
-            <select
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-              value={selectedBranchId || ""}
-              onChange={e => setSelectedBranchId(e.target.value)}
-              disabled={loading}
-            >
-              <option value="" disabled>اختر الفرع</option>
-              {branches.map((branch: Branch) => (
-                <option key={branch.id} value={branch.id}>{branch.name}</option>
-              ))}
-            </select>
-          </div>
-        ) : selectedBranch && (
-          <BranchBalanceModal
-            open={true}
-            onClose={handleCloseBalanceModal}
-            branch={selectedBranch}
-            onSubmit={handleBalanceSubmit}
-            onDelete={handleCloseBalanceModal}
-          />
-        )}
-      </BranchModal>
 
       {/* النشاطات الحديثة */}
       <div className="bg-white rounded-xl shadow p-6 mt-8">

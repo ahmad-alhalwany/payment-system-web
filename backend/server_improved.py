@@ -58,7 +58,7 @@ app.add_middleware(
 # Get database URL from environment variable with fallback
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql+psycopg2://postgres:postgres@localhost/postgres"
+    "postgresql+psycopg2://postgres:postgres@localhost:5433/paymentdb"
 )
 
 # Database URL
@@ -90,11 +90,11 @@ def get_db():
 # Data models
 class TransactionSchema(BaseModel):
     sender: str
-    sender_mobile: str
+    sender_mobile: Optional[str] = None
     sender_governorate: str
     
     receiver: str
-    receiver_mobile: str
+    receiver_mobile: Optional[str] = None
     receiver_governorate: str
     
     amount: float
@@ -131,6 +131,8 @@ class TransactionSchema(BaseModel):
 
     @field_validator('sender_mobile', 'receiver_mobile')
     def mobile_valid(cls, v, info):
+        if v is None or v == "":
+            return None
         if not v.isdigit() or not (9 <= len(v) <= 10):
             raise ValueError(f"رقم الجوال {info.field_name} غير صحيح")
         return v
@@ -167,11 +169,6 @@ class ChangePassword(BaseModel):
     old_password: str
     new_password: str
     
-class FundAllocation(BaseModel):
-    amount: float
-    type: str  # 'allocation' أو 'deduction'
-    currency: str   # Added currency field with default value
-    description: Optional[str] = None
     
 class TransactionResponse(BaseModel):
     id: str
@@ -256,9 +253,6 @@ def save_to_db(transaction: TransactionSchema, branch_id=None, employee_id=None,
     transaction_id = str(uuid.uuid4())
     
     try:
-        # Check if this is a System Manager transfer (branch_id = 0)
-        is_system_manager = branch_id == 0 or transaction.employee_name == "System Manager" or transaction.employee_name == "system_manager"
-        
         # --- Get tax_rate from sending branch (branch_id) ---
         sending_branch = db.query(Branch).filter(Branch.id == branch_id).first()
         if sending_branch:
@@ -274,97 +268,11 @@ def save_to_db(transaction: TransactionSchema, branch_id=None, employee_id=None,
         transaction.tax_amount = tax_amount
         transaction.benefited_amount = benefited_amount
 
-        if is_system_manager:
-            # System Manager has unlimited funds - skip all allocation checks
-            print("System Manager transaction detected - bypassing fund checks")
-            # Just verify destination branch exists
-            destination_branch = db.query(Branch).filter(Branch.id == transaction.destination_branch_id).first()
-            
-            if not destination_branch:
-                raise HTTPException(status_code=404, detail="Destination branch not found")
-        else:
-            # 1. Check sending branch allocation for regular transfers based on currency
-            if transaction.currency == "SYP":
-                branch = db.query(Branch).filter(Branch.id == branch_id).first()
-                
-                if not branch:
-                    raise HTTPException(status_code=404, detail="Sending branch not found")
-                    
-                allocated = branch.allocated_amount_syp
-                
-                if allocated < transaction.amount:
-                    raise HTTPException(
-                        status_code=400,
-                        detail=f"Insufficient allocated funds in SYP. Available: {allocated} SYP"
-                    )
-            elif transaction.currency == "USD":
-                branch = db.query(Branch).filter(Branch.id == branch_id).first()
-                
-                if not branch:
-                    raise HTTPException(status_code=404, detail="Sending branch not found")
-                    
-                allocated = branch.allocated_amount_usd
-                
-                if allocated < transaction.amount:
-                    raise HTTPException(
-                        status_code=400,
-                        detail=f"Insufficient allocated funds in USD. Available: {allocated} USD"
-                    )
-            else:
-                # Default to SYP for other currencies for backward compatibility
-                branch = db.query(Branch).filter(Branch.id == branch_id).first()
-                
-                if not branch:
-                    raise HTTPException(status_code=404, detail="Sending branch not found")
-                    
-                allocated = branch.allocated_amount_syp
-                
-                if allocated < transaction.amount:
-                    raise HTTPException(
-                        status_code=400,
-                        detail=f"Insufficient allocated funds. Available: {allocated} {transaction.currency}"
-                    )
+        # Verify destination branch exists (all transfers are now open without restrictions)
+        destination_branch = db.query(Branch).filter(Branch.id == transaction.destination_branch_id).first()
         
-        # For non-system manager transactions, check if destination branch exists
-        if not is_system_manager:
-            destination_branch = db.query(Branch).filter(Branch.id == transaction.destination_branch_id).first()
-            
-            if not destination_branch:
-                raise HTTPException(status_code=404, detail="Destination branch not found")
-        
-        # 3. Deduct from sending branch allocation (skip for System Manager)
-        if not is_system_manager:
-            if transaction.currency == "SYP":
-                branch.allocated_amount_syp -= transaction.amount
-                branch.allocated_amount = branch.allocated_amount_syp
-            elif transaction.currency == "USD":
-                branch.allocated_amount_usd -= transaction.amount
-            else:
-                # Default to SYP for other currencies for backward compatibility
-                branch.allocated_amount_syp -= transaction.amount
-                branch.allocated_amount = branch.allocated_amount_syp
-            
-            # 4. Increase destination branch allocation for regular transfers
-            if transaction.currency == "SYP":
-                destination_branch.allocated_amount_syp += transaction.amount
-                destination_branch.allocated_amount = destination_branch.allocated_amount_syp
-            elif transaction.currency == "USD":
-                destination_branch.allocated_amount_usd += transaction.amount
-            else:
-                # Default to SYP for other currencies for backward compatibility
-                destination_branch.allocated_amount_syp += transaction.amount
-                destination_branch.allocated_amount = destination_branch.allocated_amount_syp
-        else:
-            # For System Manager, just increase destination branch allocation
-            if transaction.currency == "SYP":
-                destination_branch.allocated_amount_syp += transaction.amount
-                destination_branch.allocated_amount = destination_branch.allocated_amount_syp
-            elif transaction.currency == "USD":
-                destination_branch.allocated_amount_usd += transaction.amount
-            else:
-                # Default to SYP for other currencies for backward compatibility
-                destination_branch.allocated_amount_syp += transaction.amount
-                destination_branch.allocated_amount = destination_branch.allocated_amount_syp
+        if not destination_branch:
+            raise HTTPException(status_code=404, detail="Destination branch not found")
         
         # عند إنشاء سجل Transaction، إذا كان branch_id == 0 (مدير النظام) احفظ None لتجاوز قيد المفتاح الأجنبي
         transaction_branch_id = None if branch_id == 0 else branch_id
@@ -393,27 +301,6 @@ def save_to_db(transaction: TransactionSchema, branch_id=None, employee_id=None,
             date=transaction_date
         )
         db.add(new_transaction)
-        
-        # Record fund deduction for sending branch (skip for System Manager)
-        if not is_system_manager:
-            fund_record = BranchFund(
-                branch_id=branch_id,
-                amount=transaction.amount,
-                type="deduction",
-                currency=transaction.currency,
-                description=f"Transaction {transaction_id} deduction"
-            )
-            db.add(fund_record)
-        
-        # Record fund allocation for receiving branch
-        fund_record = BranchFund(
-            branch_id=transaction.destination_branch_id,
-            amount=transaction.amount,
-            type="allocation",
-            currency=transaction.currency,
-            description=f"Transaction {transaction_id} allocation from {is_system_manager and 'System Manager' or f'branch {branch_id}'}"
-        )
-        db.add(fund_record)
         
         # Create notification
         notification_message = f"Hello {transaction.receiver}, you have a new money transfer of {transaction.amount} {transaction.currency} waiting. Please visit your nearest branch to collect it."
@@ -706,83 +593,6 @@ def initialize_system(user: UserCreate, db: Session = Depends(get_db)):
 
     db.commit()
     return {"status": "success", "message": "تم إنشاء مدير النظام بنجاح"} 
-
-@app.post("/branches/{branch_id}/allocate-funds/")
-def allocate_funds(
-    branch_id: int, 
-    allocation: FundAllocation,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
-):
-    if current_user["role"] != "director":
-        raise HTTPException(status_code=403, detail="Director access required")
-
-    branch = db.query(Branch).filter(Branch.id == branch_id).first()
-    if not branch:
-        raise HTTPException(status_code=404, detail="Branch not found")
-
-    # Validate currency input
-    currency = allocation.currency.upper()  # Normalize to uppercase
-    if currency not in ["SYP", "USD"]:
-        raise HTTPException(status_code=400, 
-                          detail="العملة غير مدعومة. الرجاء استخدام SYP أو USD")
-
-    # Handle SYP operations
-    if currency == "SYP":
-        if allocation.type == 'deduction':
-            if branch.allocated_amount_syp < allocation.amount:
-                raise HTTPException(
-                    status_code=400,
-                    detail="رصيد الفرع بالليرة السورية غير كافي للخصم"
-                )
-            branch.allocated_amount_syp -= allocation.amount
-        else:
-            branch.allocated_amount_syp += allocation.amount
-        
-        # Update legacy field explicitly
-        branch.allocated_amount = branch.allocated_amount_syp
-
-    # Handle USD operations
-    elif currency == "USD":
-        if allocation.type == 'deduction':
-            if branch.allocated_amount_usd < allocation.amount:
-                raise HTTPException(
-                    status_code=400,
-                    detail="رصيد الفرع بالدولار الأمريكي غير كافي للخصم"
-                )
-            branch.allocated_amount_usd -= allocation.amount
-        else:
-            branch.allocated_amount_usd += allocation.amount
-
-    # Create audit record with precise values
-    fund_record = BranchFund(
-        branch_id=branch_id,
-        amount=allocation.amount * (1 if allocation.type == 'allocation' else -1),
-        type=allocation.type,
-        currency=currency,
-        description=(
-            allocation.description or 
-            f"{'إيداع' if allocation.type == 'allocation' else 'خصم'} "
-            f"بواسطة {current_user['username']} ({currency})"
-        )
-    )
-    
-    try:
-        db.add(fund_record)
-        db.commit()
-    except SQLAlchemyError as e:
-        db.rollback()
-        raise HTTPException(
-            status_code=500,
-            detail=f"فشل في حفظ العملية: {str(e)}"
-        )
-
-    return {
-        "status": "success",
-        "new_allocated_syp": branch.allocated_amount_syp,
-        "new_allocated_usd": branch.allocated_amount_usd,
-        "currency": currency
-    }
 
 @app.get("/branches/{branch_id}/funds-history")
 def get_funds_history(
@@ -1834,7 +1644,7 @@ def update_transaction_status(
                     detail="Not authorized to modify this transaction"
                 )
 
-        # Handle fund allocation and profits
+        # Handle profits
         if old_status == "processing" and new_status == "completed":
             # Record profits when transaction is completed
             record_branch_profit(db, transaction)
@@ -1842,23 +1652,6 @@ def update_transaction_status(
             (old_status == "processing" and new_status in ["cancelled", "rejected"]) or
             (old_status == "completed" and new_status in ["cancelled", "rejected"])
         ):
-            # Refund the amount to the originating branch
-            branch = db.query(Branch).filter(Branch.id == branch_id).with_for_update().first()
-            if branch:
-                branch.allocated_amount += amount
-                if transaction.currency == "SYP":
-                    branch.allocated_amount_syp += amount
-                elif transaction.currency == "USD":
-                    branch.allocated_amount_usd += amount
-                # Record fund refund
-                fund_record = BranchFund(
-                    branch_id=branch_id,
-                    amount=amount,
-                    type="refund",
-                    currency=transaction.currency,
-                    description=f"Refund for {new_status} transaction {status_update.transaction_id}"
-                )
-                db.add(fund_record)
             # Remove profit records if transaction is cancelled/rejected
             db.query(BranchProfits).filter(
                 BranchProfits.transaction_id == transaction.id
@@ -1891,7 +1684,7 @@ def update_transaction_status(
             cache.delete(get_branch_cache_key(dest_branch_id))
             cache.delete(get_transaction_cache_key(status_update.transaction_id))
             
-            return {"status": "success", "message": "Status updated with fund adjustment"}
+            return {"status": "success", "message": "Status updated successfully"}
         except Exception as e:
             db.rollback()
             raise HTTPException(
@@ -2943,7 +2736,7 @@ def get_daily_summary(
 settings_router = APIRouter()
 
 system_settings = {
-    "systemName": "شركة العنكبوت للحوالات",
+    "systemName": "مكتب جاسم للحوالات",
     "companyName": "اسم الشركة",
     "adminEmail": "admin@example.com",
     "defaultCurrency": "ليرة سورية",

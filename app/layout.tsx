@@ -10,7 +10,7 @@ const cairo = Cairo({
 });
 
 export const metadata: Metadata = {
-  title: "شركة العنكبوت للحوالات",
+  title: "مكتب جاسم للحوالات",
   description: "نظام إدارة التحويلات المالية الداخلية",
 };
 
