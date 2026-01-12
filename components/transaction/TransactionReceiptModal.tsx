@@ -3,6 +3,8 @@ import { Transaction } from "@/app/api/transactions";
 import { numberToArabicWords } from "@/lib/utils/arabicAmount";
 import Image from "next/image";
 import { branchesApi } from '@/app/api/branches';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 interface TransactionReceiptModalProps {
   isOpen: boolean;
@@ -62,15 +64,131 @@ export default function TransactionReceiptModal({
       defaultWorkingHours;
   }
 
+  // دالة لإنشاء PDF من HTML ومشاركته
+  const generateAndSharePDF = async (service: 'whatsapp' | 'telegram') => {
+    try {
+      const receiptElement = document.getElementById('receipt');
+      if (!receiptElement) {
+        alert('لم يتم العثور على عنصر الإيصال');
+        return;
+      }
+
+      // إخفاء الأزرار قبل التقاط الصورة
+      const buttons = receiptElement.querySelectorAll('.print\\:hidden');
+      const originalDisplays: string[] = [];
+      buttons.forEach((btn: any) => {
+        if (btn.style) {
+          originalDisplays.push(btn.style.display || '');
+          btn.style.display = 'none';
+        }
+      });
+
+      // الانتظار قليلاً للتأكد من إخفاء الأزرار
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // تحويل HTML إلى canvas مع إعدادات محسّنة
+      const canvas = await html2canvas(receiptElement, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: false,
+        logging: false,
+        backgroundColor: '#ffffff',
+        width: receiptElement.scrollWidth,
+        height: receiptElement.scrollHeight,
+        windowWidth: receiptElement.scrollWidth,
+        windowHeight: receiptElement.scrollHeight,
+      });
+
+      // إظهار الأزرار مرة أخرى
+      buttons.forEach((btn: any, index: number) => {
+        if (btn.style) {
+          btn.style.display = originalDisplays[index] || '';
+        }
+      });
+
+      // إنشاء PDF من canvas
+      const imgData = canvas.toDataURL('image/png', 1.0);
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      
+      // حساب الأبعاد بشكل صحيح
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const mmWidth = (imgWidth * 0.264583); // تحويل من بكسل إلى ملم
+      const mmHeight = (imgHeight * 0.264583);
+      
+      // حساب النسبة المناسبة لتناسب الصفحة
+      const widthRatio = pdfWidth / mmWidth;
+      const heightRatio = pdfHeight / mmHeight;
+      const ratio = Math.min(widthRatio, heightRatio);
+      
+      const finalWidth = mmWidth * ratio;
+      const finalHeight = mmHeight * ratio;
+      const xOffset = (pdfWidth - finalWidth) / 2;
+      const yOffset = 0;
+
+      pdf.addImage(imgData, 'PNG', xOffset, yOffset, finalWidth, finalHeight);
+      const pdfBlob = pdf.output('blob');
+
+      // استخدام Web Share API لمشاركة الملف مباشرة
+      const fileName = `receipt-${transaction.id}.pdf`;
+      const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+      
+      // محاولة استخدام Web Share API (يعمل بشكل جيد على الموبايل)
+      if (navigator.share && navigator.canShare) {
+        try {
+          // التحقق من إمكانية مشاركة الملف
+          if (navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              files: [file],
+              title: `إيصال حوالة - ${transaction.id}`,
+              text: `إيصال حوالة - مكتب جاسم للحوالات\nرقم الإشعار: ${transaction.id}`,
+            });
+            return; // نجحت المشاركة
+          }
+        } catch (shareError: any) {
+          // إذا كان المستخدم ألغى المشاركة، لا نفعل شيء
+          if (shareError.name === 'AbortError') {
+            return;
+          }
+          console.log('Web Share API failed:', shareError);
+        }
+      }
+
+      // Fallback: على سطح المكتب، نحتاج لتحميل الملف أولاً
+      // لأن واتساب وتليغرام لا يدعمان مشاركة الملفات مباشرة عبر رابط
+      if (service === 'whatsapp') {
+        alert('عذراً، مشاركة الملفات مباشرة متاحة فقط على الأجهزة المحمولة.\nسيتم تحميل الملف، يمكنك إرساله يدوياً عبر واتساب.');
+      } else {
+        alert('عذراً، مشاركة الملفات مباشرة متاحة فقط على الأجهزة المحمولة.\nسيتم تحميل الملف، يمكنك إرساله يدوياً عبر تليغرام.');
+      }
+      
+      // تحميل الملف كبديل
+      const blobUrl = URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // تنظيف blob URL بعد التحميل
+      setTimeout(() => {
+        URL.revokeObjectURL(blobUrl);
+      }, 1000);
+    } catch (error: any) {
+      console.error('Error generating PDF:', error);
+      alert(`حدث خطأ أثناء إنشاء PDF: ${error?.message || 'خطأ غير معروف'}\nيرجى المحاولة مرة أخرى.`);
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 print:bg-transparent print:p-0">
       <div
         id="receipt"
         className="relative w-[1400px] max-w-full mx-auto p-0 bg-white border border-gray-400 rounded-2xl print:rounded-none print:border-none print:shadow-none shadow-xl overflow-hidden"
         style={{
-          backgroundImage: "url('/payment-system.jpg')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
           minHeight: 480,
           maxHeight: 700,
           minWidth: 900,
@@ -155,13 +273,34 @@ export default function TransactionReceiptModal({
             - لا تشارك هذا الإيصال إلا مع المستلم حرصاً على سلامة أموالك
           </div>
         </div>
-        {/* زر الإغلاق والطباعة */}
-        <div className="flex justify-center gap-4 mt-2 mb-2 print:hidden sticky bottom-0 bg-white/90 z-20 py-2 border-t border-gray-200">
+        {/* زر الإغلاق والطباعة/التنزيل */}
+        <div className="flex justify-center gap-3 mt-2 mb-2 print:hidden sticky bottom-0 bg-white/90 z-20 py-2 border-t border-gray-200 flex-wrap">
           <button
             className="bg-gray-400 text-white px-5 py-1.5 rounded-lg font-bold hover:bg-gray-500 transition text-sm"
             onClick={onClose}
           >
             إغلاق
+          </button>
+          <button
+            className="bg-green-600 text-white px-5 py-1.5 rounded-lg font-bold hover:bg-green-700 transition text-sm"
+            onClick={() => generateAndSharePDF('whatsapp')}
+            title="مشاركة PDF عبر واتساب"
+          >
+            واتساب
+          </button>
+          <button
+            className="bg-sky-600 text-white px-5 py-1.5 rounded-lg font-bold hover:bg-sky-700 transition text-sm"
+            onClick={() => generateAndSharePDF('telegram')}
+            title="مشاركة PDF عبر تليغرام"
+          >
+            تليغرام
+          </button>
+          <button
+            className="bg-emerald-600 text-white px-7 py-1.5 rounded-lg font-bold hover:bg-emerald-700 transition shadow text-sm"
+            onClick={onPrint}
+            title="تنزيل/مشاركة الإيصال كـ PDF (اختر حفظ كـ PDF)"
+          >
+            تنزيل PDF
           </button>
           <button
             className="bg-yellow-600 text-white px-7 py-1.5 rounded-lg font-bold hover:bg-yellow-700 transition shadow text-sm"
