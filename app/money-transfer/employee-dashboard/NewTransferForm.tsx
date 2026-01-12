@@ -112,7 +112,6 @@ export default function NewTransferForm({ onSubmit, branches, currentBranch }: N
   // تحقق مبدئي من صحة البيانات مع الرصيد
   const validate = () => {
     const errs = [];
-    if (!sender.name) errs.push("اسم المرسل مطلوب");
     if (sender.mobile && !/^\d{9,10}$/.test(sender.mobile)) errs.push("رقم هاتف المرسل يجب أن يكون 9-10 أرقام");
     if (!receiver.name) errs.push("اسم المستلم مطلوب");
     if (receiver.mobile && !/^\d{9,10}$/.test(receiver.mobile)) errs.push("رقم هاتف المستلم يجب أن يكون 9-10 أرقام");
@@ -174,10 +173,12 @@ export default function NewTransferForm({ onSubmit, branches, currentBranch }: N
     <div className="space-y-4">
       <h2 className="text-xl font-bold text-primary-700 mb-2 text-center">تأكيد بيانات التحويل</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <div className="font-semibold mb-1">اسم المرسل:</div>
-          <div className="bg-gray-50 rounded p-2 border">{sender.name}</div>
-        </div>
+        {sender.name && (
+          <div>
+            <div className="font-semibold mb-1">اسم المرسل:</div>
+            <div className="bg-gray-50 rounded p-2 border">{sender.name}</div>
+          </div>
+        )}
         {sender.mobile && (
           <div>
             <div className="font-semibold mb-1">رقم هاتف المرسل:</div>
@@ -275,10 +276,12 @@ export default function NewTransferForm({ onSubmit, branches, currentBranch }: N
         <div className="space-y-4">
           <h2 className="text-2xl font-extrabold text-primary-700 mb-2 text-center tracking-wide drop-shadow-sm">تأكيد بيانات التحويل</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div>
-              <div className="font-semibold mb-1 text-primary-700">اسم المرسل:</div>
-              <div className="bg-gray-50 rounded-xl p-3 border border-primary-100 shadow-sm text-lg font-bold">{sender.name}</div>
-            </div>
+            {sender.name && (
+              <div>
+                <div className="font-semibold mb-1 text-primary-700">اسم المرسل:</div>
+                <div className="bg-gray-50 rounded-xl p-3 border border-primary-100 shadow-sm text-lg font-bold">{sender.name}</div>
+              </div>
+            )}
             <div>
               <div className="font-semibold mb-1 text-primary-700">رقم هاتف المرسل:</div>
               <div className="bg-gray-50 rounded-xl p-3 border border-primary-100 shadow-sm text-lg font-bold">{sender.mobile}</div>
@@ -355,8 +358,8 @@ export default function NewTransferForm({ onSubmit, branches, currentBranch }: N
           <h2 className="text-2xl font-extrabold text-primary-700 mb-4 text-center tracking-wide drop-shadow-sm">بيانات المرسل</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
             <div className="flex flex-col gap-2">
-              <label className="font-semibold text-primary-700">اسم المرسل <span className="text-red-500">*</span></label>
-              <input className="input-modern h-14 text-lg" placeholder="اسم المرسل" value={sender.name} onChange={e => setSender({ ...sender, name: e.target.value })} required />
+              <label className="font-semibold text-primary-700">اسم المرسل</label>
+              <input className="input-modern h-14 text-lg" placeholder="اسم المرسل (اختياري)" value={sender.name} onChange={e => setSender({ ...sender, name: e.target.value })} />
             </div>
             <div className="flex flex-col gap-2">
               <label className="font-semibold text-primary-700">رقم الهاتف</label>

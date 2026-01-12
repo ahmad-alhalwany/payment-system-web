@@ -48,6 +48,7 @@ export default function PrintTransferView({ transfer, onClose }: PrintTransferVi
   if (branchInfo) {
     deliveryAddress =
       `${branchInfo.governorate || ''} - ${branchInfo.name || ''} (رمز الفرع: ${branchInfo.branch_id || branchInfo.id})\n` +
+      `رقم الفرع المستلم: ${transfer.destination_branch_id || '-'}\n` +
       `${branchInfo.location ? branchInfo.location + '\n' : ''}` +
       `${branchInfo.phone_number ? 'هاتف: ' + branchInfo.phone_number + '\n' : ''}` +
       defaultWorkingHours;
@@ -103,11 +104,17 @@ export default function PrintTransferView({ transfer, onClose }: PrintTransferVi
         </div>
       </div>
       {/* الصف الثاني: المرسل - المستفيد - الجوال */}
-      <div className={`grid gap-2 px-8 pt-0 pb-0.5 text-center text-base ${transfer.receiver_mobile ? 'grid-cols-3' : 'grid-cols-2'}`}>
-        <div className="text-black font-bold text-base">
-          <span className="font-bold text-gray-700">المرسل</span><br />
-          {transfer.sender}
-        </div>
+      <div className={`grid gap-2 px-8 pt-0 pb-0.5 text-center text-base ${
+        transfer.sender && transfer.receiver_mobile ? 'grid-cols-3' :
+        transfer.sender || transfer.receiver_mobile ? 'grid-cols-2' :
+        'grid-cols-1'
+      }`}>
+        {transfer.sender && (
+          <div className="text-black font-bold text-base">
+            <span className="font-bold text-gray-700">المرسل</span><br />
+            {transfer.sender}
+          </div>
+        )}
         <div className="text-black font-bold text-base">
           <span className="font-bold text-gray-700">المستفيد</span><br />
           {transfer.receiver}

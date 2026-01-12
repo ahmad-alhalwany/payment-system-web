@@ -89,7 +89,7 @@ def get_db():
 
 # Data models
 class TransactionSchema(BaseModel):
-    sender: str
+    sender: Optional[str] = None
     sender_mobile: Optional[str] = None
     sender_governorate: str
     

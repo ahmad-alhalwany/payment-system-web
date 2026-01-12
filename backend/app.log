@@ -21036,3 +21036,114 @@ WHERE transactions.branch_id = %(branch_id_1)s AND transactions.destination_bran
 [2026-01-11 15:07:46,098] ERROR in cache: Cache set error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
 [2026-01-11 15:07:46,104] INFO in server_improved: GET /branches/2 - 200 - 8.719s
 [2026-01-11 15:09:36,702] INFO in cache: Successfully connected to Redis at localhost:6379
+[2026-01-11 17:07:28,343] INFO in cache: Successfully connected to Redis at localhost:6379
+[2026-01-11 17:08:11,178] INFO in cache: Successfully connected to Redis at localhost:6379
+[2026-01-11 17:08:12,467] INFO in server_improved: OPTIONS /branches/ - 200 - 0.019s
+[2026-01-11 17:08:12,522] INFO in server_improved: OPTIONS /branches/ - 200 - 0.094s
+[2026-01-11 17:08:12,557] INFO in server_improved: OPTIONS /transactions/ - 200 - 0.129s
+[2026-01-11 17:08:12,587] INFO in server_improved: OPTIONS /transactions/ - 200 - 0.159s
+[2026-01-11 17:08:14,101] INFO in server_improved: GET /branches/ - 200 - 1.468s
+[2026-01-11 17:08:14,251] INFO in server_improved: GET /transactions/ - 200 - 1.618s
+[2026-01-11 17:08:14,499] INFO in server_improved: GET /transactions/ - 200 - 1.866s
+[2026-01-11 17:08:14,512] INFO in server_improved: GET /branches/ - 200 - 1.879s
+[2026-01-11 17:08:15,742] INFO in server_improved: GET /check-initialization/ - 200 - 0.209s
+[2026-01-11 17:08:15,907] INFO in server_improved: GET /check-initialization/ - 200 - 0.027s
+[2026-01-11 17:08:21,073] INFO in server_improved: OPTIONS /login/ - 200 - 0.001s
+[2026-01-11 17:08:23,454] INFO in server_improved: POST /login/ - 200 - 2.375s
+[2026-01-11 17:08:28,300] INFO in server_improved: OPTIONS /users/ - 200 - 0.000s
+[2026-01-11 17:08:28,304] INFO in server_improved: OPTIONS /financial/total/ - 200 - 0.000s
+[2026-01-11 17:08:28,304] INFO in server_improved: OPTIONS /activity/ - 200 - 0.000s
+[2026-01-11 17:08:28,724] INFO in server_improved: GET /branches/ - 200 - 0.186s
+[2026-01-11 17:08:28,724] INFO in server_improved: GET /users/ - 200 - 0.182s
+[2026-01-11 17:08:28,814] INFO in server_improved: GET /activity/ - 200 - 0.173s
+[2026-01-11 17:08:28,924] INFO in server_improved: GET /financial/total/ - 200 - 0.288s
+[2026-01-11 17:08:28,929] INFO in server_improved: GET /branches/ - 200 - 0.103s
+[2026-01-11 17:08:28,936] INFO in server_improved: GET /activity/ - 200 - 0.110s
+[2026-01-11 17:08:28,966] INFO in server_improved: GET /financial/total/ - 200 - 0.019s
+[2026-01-11 17:08:29,035] INFO in server_improved: GET /users/ - 200 - 0.209s
+[2026-01-11 17:08:39,063] INFO in server_improved: GET /branches/ - 200 - 0.023s
+[2026-01-11 17:08:39,134] INFO in server_improved: GET /branches/ - 200 - 0.031s
+[2026-01-11 17:08:39,294] INFO in server_improved: OPTIONS /branches/1 - 200 - 0.001s
+[2026-01-11 17:08:39,304] INFO in server_improved: OPTIONS /transactions/ - 200 - 0.003s
+[2026-01-11 17:08:39,534] INFO in server_improved: GET /transactions/ - 200 - 0.148s
+[2026-01-11 17:08:39,650] INFO in server_improved: GET /transactions/ - 200 - 0.053s
+[2026-01-11 17:08:44,371] ERROR in cache: Cache get error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:08:49,134] ERROR in cache: Cache set error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:08:49,146] INFO in server_improved: GET /branches/1 - 200 - 9.761s
+[2026-01-11 17:08:49,158] INFO in server_improved: OPTIONS /transactions/ - 200 - 0.000s
+[2026-01-11 17:08:49,228] INFO in server_improved: GET /branches/ - 200 - 0.048s
+[2026-01-11 17:08:49,231] INFO in server_improved: GET /transactions/ - 200 - 0.051s
+[2026-01-11 17:08:49,277] INFO in server_improved: GET /transactions/ - 200 - 0.032s
+[2026-01-11 17:08:49,418] INFO in server_improved: GET /transactions/ - 200 - 0.232s
+[2026-01-11 17:08:54,232] ERROR in cache: Cache get error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:08:58,302] INFO in server_improved: OPTIONS /transactions/ - 200 - 0.000s
+[2026-01-11 17:08:59,062] ERROR in cache: Cache set error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:09:03,246] ERROR in cache: Cache clear pattern error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:09:07,837] ERROR in cache: Cache clear pattern error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:09:11,869] ERROR in cache: Cache delete error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:09:16,110] ERROR in cache: Cache delete error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:09:16,111] INFO in server_improved: POST /transactions/ - 201 - 17.804s
+[2026-01-11 17:09:16,114] INFO in server_improved: GET /branches/1 - 200 - 26.935s
+[2026-01-11 17:09:16,121] INFO in server_improved: OPTIONS /transactions/50ea4781-64e3-47e8-be94-d6929d11b4df/ - 200 - 0.000s
+[2026-01-11 17:09:16,243] INFO in server_improved: GET /transactions/50ea4781-64e3-47e8-be94-d6929d11b4df/ - 200 - 0.020s
+[2026-01-11 17:09:16,611] INFO in server_improved: GET /transactions/ - 200 - 0.021s
+[2026-01-11 17:09:16,761] INFO in server_improved: OPTIONS /branches/2 - 200 - 0.000s
+[2026-01-11 17:09:20,839] ERROR in cache: Cache get error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:09:24,906] ERROR in cache: Cache set error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:09:24,907] INFO in server_improved: GET /branches/2 - 200 - 8.125s
+[2026-01-11 17:09:28,975] ERROR in cache: Cache get error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:09:33,029] ERROR in cache: Cache set error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:09:33,030] INFO in server_improved: GET /branches/2 - 200 - 8.124s
+[2026-01-11 17:10:57,070] INFO in server_improved: OPTIONS /branches/ - 200 - 0.001s
+[2026-01-11 17:10:57,072] INFO in server_improved: OPTIONS /branches/ - 200 - 0.002s
+[2026-01-11 17:10:57,961] INFO in server_improved: GET /branches/ - 200 - 0.602s
+[2026-01-11 17:10:58,271] INFO in server_improved: GET /branches/ - 200 - 0.031s
+[2026-01-11 17:11:16,411] INFO in server_improved: OPTIONS /branches/2 - 200 - 0.000s
+[2026-01-11 17:11:20,797] ERROR in cache: Cache delete error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:11:20,801] INFO in server_improved: PUT /branches/2 - 200 - 4.383s
+[2026-01-11 17:11:20,839] INFO in server_improved: GET /branches/ - 200 - 0.027s
+[2026-01-11 17:13:53,043] INFO in server_improved: GET /branches/ - 200 - 0.086s
+[2026-01-11 17:13:53,177] INFO in server_improved: GET /branches/ - 200 - 0.024s
+[2026-01-11 17:13:53,227] INFO in server_improved: GET /transactions/ - 200 - 0.486s
+[2026-01-11 17:13:53,483] INFO in server_improved: GET /transactions/ - 200 - 0.055s
+[2026-01-11 17:13:57,140] ERROR in cache: Cache get error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:13:59,413] INFO in server_improved: GET /transactions/ - 200 - 0.379s
+[2026-01-11 17:14:01,990] ERROR in cache: Cache set error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:14:01,999] INFO in server_improved: GET /branches/1 - 200 - 9.258s
+[2026-01-11 17:14:02,174] INFO in server_improved: GET /branches/ - 200 - 0.111s
+[2026-01-11 17:14:02,179] INFO in server_improved: GET /transactions/ - 200 - 0.115s
+[2026-01-11 17:14:02,220] INFO in server_improved: GET /transactions/ - 200 - 0.165s
+[2026-01-11 17:14:02,244] INFO in server_improved: GET /transactions/ - 200 - 0.196s
+[2026-01-11 17:14:02,275] INFO in server_improved: GET /transactions/ - 200 - 0.070s
+[2026-01-11 17:14:23,935] ERROR in cache: Cache get error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:14:27,998] ERROR in cache: Cache set error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:14:28,003] INFO in server_improved: GET /branches/2 - 200 - 8.151s
+[2026-01-11 17:14:32,068] ERROR in cache: Cache get error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:14:36,185] ERROR in cache: Cache set error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:14:36,195] INFO in server_improved: GET /branches/2 - 200 - 8.184s
+[2026-01-11 17:14:42,993] ERROR in cache: Cache get error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:14:47,741] ERROR in cache: Cache set error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:14:47,745] INFO in server_improved: GET /branches/1 - 200 - 9.241s
+[2026-01-11 17:14:51,815] ERROR in cache: Cache get error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:14:56,629] ERROR in cache: Cache set error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:14:59,152] ERROR in cache: Cache clear pattern error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:15:03,209] ERROR in cache: Cache clear pattern error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:15:07,260] ERROR in cache: Cache delete error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:15:11,310] ERROR in cache: Cache delete error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:15:11,311] INFO in server_improved: POST /transactions/ - 201 - 17.010s
+[2026-01-11 17:15:11,316] INFO in server_improved: GET /branches/1 - 200 - 23.567s
+[2026-01-11 17:15:11,349] INFO in server_improved: OPTIONS /transactions/9b25af6f-af80-4e50-8e46-6627cd261539/ - 200 - 0.001s
+[2026-01-11 17:15:12,264] INFO in server_improved: GET /transactions/9b25af6f-af80-4e50-8e46-6627cd261539/ - 200 - 0.889s
+[2026-01-11 17:15:12,313] INFO in server_improved: GET /transactions/ - 200 - 0.038s
+[2026-01-11 17:15:15,387] ERROR in cache: Cache get error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:15:15,387] ERROR in cache: Cache get error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:15:16,421] ERROR in cache: Cache get error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:15:19,449] ERROR in cache: Cache set error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:15:19,449] ERROR in cache: Cache set error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:15:19,453] INFO in server_improved: GET /branches/1 - 200 - 8.142s
+[2026-01-11 17:15:19,453] INFO in server_improved: GET /branches/1 - 200 - 8.142s
+[2026-01-11 17:15:20,473] ERROR in cache: Cache set error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:15:20,475] INFO in server_improved: GET /branches/2 - 200 - 8.116s
+[2026-01-11 17:15:24,545] ERROR in cache: Cache get error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:15:29,027] ERROR in cache: Cache set error: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[2026-01-11 17:15:29,031] INFO in server_improved: GET /branches/2 - 200 - 8.551s
