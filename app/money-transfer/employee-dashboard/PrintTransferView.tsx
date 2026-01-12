@@ -222,44 +222,44 @@ export default function PrintTransferView({ transfer, onClose }: PrintTransferVi
         </div>
       </div>
       {/* الصف الثاني: المرسل - المستفيد - الجوال */}
-      <div className={`grid gap-2 px-8 pt-0 pb-0.5 text-center text-base ${
+      <div className={`grid gap-3 px-8 pt-2 pb-2 text-center text-base ${
         transfer.sender && transfer.receiver_mobile ? 'grid-cols-3' :
         transfer.sender || transfer.receiver_mobile ? 'grid-cols-2' :
         'grid-cols-1'
       }`}>
         {transfer.sender && (
-          <div className="text-black font-bold text-base">
-            <span className="font-bold text-gray-700">المرسل</span><br />
-            {transfer.sender}
+          <div className="text-black font-bold text-base py-1">
+            <span className="font-bold text-gray-700 block mb-1">المرسل</span>
+            <span className="block text-lg">{transfer.sender}</span>
           </div>
         )}
-        <div className="text-black font-bold text-base min-h-[3rem] flex flex-col justify-center">
+        <div className="text-black font-bold text-base py-1">
           <span className="font-bold text-gray-700 block mb-1">المستفيد</span>
-          <span className="block break-words">{transfer.receiver}</span>
+          <span className="block text-lg break-words leading-relaxed">{transfer.receiver}</span>
         </div>
         {transfer.receiver_mobile && (
-          <div className="text-black font-bold text-base">
-            <span className="font-bold text-gray-700">الجوال</span><br />
-            {transfer.receiver_mobile}
+          <div className="text-black font-bold text-base py-1">
+            <span className="font-bold text-gray-700 block mb-1">الجوال</span>
+            <span className="block text-lg">{transfer.receiver_mobile}</span>
           </div>
         )}
       </div>
       {/* المبلغ */}
-      <div className="px-8 py-0.5 text-center bg-gradient-to-l from-yellow-50 to-white border-y border-yellow-200">
-        <div className="text-xl font-extrabold text-green-700">{amount} {transfer.currency === 'USD' ? 'دولار' : transfer.currency}</div>
+      <div className="px-8 py-3 text-center bg-gradient-to-l from-yellow-50 to-white border-y-2 border-yellow-300 my-2">
+        <div className="text-2xl font-extrabold text-green-700 mb-1">{amount} {transfer.currency === 'USD' ? 'دولار' : transfer.currency}</div>
         <div className="text-base font-bold text-gray-700">{numberToArabicWords(transfer.amount)} {transfer.currency === 'USD' ? 'دولار' : transfer.currency}</div>
       </div>
       {/* عنوان التسليم */}
-      <div className="px-8 pt-1 pb-0.5">
-        <div className="font-bold text-base text-right text-gray-800 mb-1">عنوان التسليم</div>
-        <div className="bg-gray-50 border border-gray-200 rounded p-2 min-h-[40px] text-right text-gray-700 text-sm" style={{whiteSpace:'pre-line'}}>
+      <div className="px-8 pt-3 pb-2">
+        <div className="font-bold text-lg text-right text-gray-800 mb-2">عنوان التسليم</div>
+        <div className="bg-gray-50 border-2 border-gray-300 rounded-lg p-3 min-h-[50px] text-right text-gray-700 text-sm leading-relaxed" style={{whiteSpace:'pre-line'}}>
           {deliveryAddress}
         </div>
       </div>
       {/* ملاحظات هامة */}
-      <div className="px-8 pt-0.5 pb-1">
-        <div className="font-bold text-base text-right text-gray-800 mb-1">ملاحظات هامة</div>
-        <div className="bg-yellow-50 border border-yellow-200 rounded p-2 text-right text-gray-800 text-sm leading-relaxed">
+      <div className="px-8 pt-2 pb-2">
+        <div className="font-bold text-lg text-right text-gray-800 mb-2">ملاحظات هامة</div>
+        <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-3 text-right text-gray-800 text-sm leading-relaxed">
           - يتم تسليم الحوالة بيد المستلم حصراً بعد التأكد من الهوية الأصلية ولا تقبل الصورة<br />
           - لا تشارك هذا الإيصال إلا مع المستلم حرصاً على سلامة أموالك
         </div>
