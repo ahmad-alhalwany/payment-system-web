@@ -2736,7 +2736,7 @@ def get_daily_summary(
 settings_router = APIRouter()
 
 system_settings = {
-    "systemName": "مكتب جاسم للحوالات",
+    "systemName": "مكتب الجاسم للحوالات",
     "companyName": "اسم الشركة",
     "adminEmail": "admin@example.com",
     "defaultCurrency": "ليرة سورية",
