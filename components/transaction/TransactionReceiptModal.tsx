@@ -86,9 +86,9 @@ export default function TransactionReceiptModal({
       // الانتظار قليلاً للتأكد من إخفاء الأزرار
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      // تحويل HTML إلى canvas مع إعدادات محسّنة
+      // تحويل HTML إلى canvas مع إعدادات محسّنة (تقليل scale لتقليل الحجم)
       const canvas = await html2canvas(receiptElement, {
-        scale: 2,
+        scale: 1.5, // تقليل من 2 إلى 1.5 لتقليل الحجم
         useCORS: true,
         allowTaint: false,
         logging: false,
@@ -106,8 +106,8 @@ export default function TransactionReceiptModal({
         }
       });
 
-      // إنشاء PDF من canvas
-      const imgData = canvas.toDataURL('image/png', 1.0);
+      // إنشاء PDF من canvas باستخدام JPEG مع ضغط لتقليل الحجم
+      const imgData = canvas.toDataURL('image/jpeg', 0.85); // استخدام JPEG بجودة 85% بدلاً من PNG
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
@@ -128,7 +128,7 @@ export default function TransactionReceiptModal({
       const xOffset = (pdfWidth - finalWidth) / 2;
       const yOffset = 0;
 
-      pdf.addImage(imgData, 'PNG', xOffset, yOffset, finalWidth, finalHeight);
+      pdf.addImage(imgData, 'JPEG', xOffset, yOffset, finalWidth, finalHeight);
       const pdfBlob = pdf.output('blob');
 
       // استخدام Web Share API لمشاركة الملف مباشرة
@@ -242,9 +242,9 @@ export default function TransactionReceiptModal({
               {transaction.sender}
             </div>
           )}
-          <div className="text-black font-bold text-base">
-            <span className="font-bold text-gray-700">المستفيد</span><br />
-            {transaction.receiver}
+          <div className="text-black font-bold text-base min-h-[3rem] flex flex-col justify-center">
+            <span className="font-bold text-gray-700 block mb-1">المستفيد</span>
+            <span className="block break-words">{transaction.receiver}</span>
           </div>
           {transaction.receiver_mobile && (
             <div className="text-black font-bold text-base">
